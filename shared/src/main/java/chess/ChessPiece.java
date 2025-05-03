@@ -73,7 +73,10 @@ public class ChessPiece {
                 // Logic for knight's moves
                 break;
             case ROOK:
-                // Logic for rook's moves
+                bishopMoves(1, 0, board, myPosition, moves);
+                bishopMoves(-1, 0, board, myPosition, moves);
+                bishopMoves(0, -1, board, myPosition, moves);
+                bishopMoves(0, 1, board, myPosition, moves);
                 break;
             case PAWN:
                 // Logic for pawn's moves
