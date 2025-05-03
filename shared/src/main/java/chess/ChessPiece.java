@@ -61,29 +61,29 @@ public class ChessPiece {
                 // Logic for king's moves
                 break;
             case QUEEN:
-                bishopMoves(1, 1, board, myPosition, moves);
-                bishopMoves(-1, -1, board, myPosition, moves);
-                bishopMoves(1, -1, board, myPosition, moves);
-                bishopMoves(-1, 1, board, myPosition, moves);
-                bishopMoves(1, 0, board, myPosition, moves);
-                bishopMoves(-1, 0, board, myPosition, moves);
-                bishopMoves(0, -1, board, myPosition, moves);
-                bishopMoves(0, 1, board, myPosition, moves);
+                addLoopMoves(1, 1, board, myPosition, moves);
+                addLoopMoves(-1, -1, board, myPosition, moves);
+                addLoopMoves(1, -1, board, myPosition, moves);
+                addLoopMoves(-1, 1, board, myPosition, moves);
+                addLoopMoves(1, 0, board, myPosition, moves);
+                addLoopMoves(-1, 0, board, myPosition, moves);
+                addLoopMoves(0, -1, board, myPosition, moves);
+                addLoopMoves(0, 1, board, myPosition, moves);
                 break;
             case BISHOP:
-                bishopMoves(1, 1, board, myPosition, moves);
-                bishopMoves(-1, -1, board, myPosition, moves);
-                bishopMoves(1, -1, board, myPosition, moves);
-                bishopMoves(-1, 1, board, myPosition, moves);
+                addLoopMoves(1, 1, board, myPosition, moves);
+                addLoopMoves(-1, -1, board, myPosition, moves);
+                addLoopMoves(1, -1, board, myPosition, moves);
+                addLoopMoves(-1, 1, board, myPosition, moves);
                 break;
             case KNIGHT:
                 // Logic for knight's moves
                 break;
             case ROOK:
-                bishopMoves(1, 0, board, myPosition, moves);
-                bishopMoves(-1, 0, board, myPosition, moves);
-                bishopMoves(0, -1, board, myPosition, moves);
-                bishopMoves(0, 1, board, myPosition, moves);
+                addLoopMoves(1, 0, board, myPosition, moves);
+                addLoopMoves(-1, 0, board, myPosition, moves);
+                addLoopMoves(0, -1, board, myPosition, moves);
+                addLoopMoves(0, 1, board, myPosition, moves);
                 break;
             case PAWN:
                 // Logic for pawn's moves
@@ -107,7 +107,7 @@ public class ChessPiece {
         return Objects.hash(pieceColor, type);
     }
 
-    public void bishopMoves(int rowStep, int colStep, ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> moves){
+    public void addLoopMoves(int rowStep, int colStep, ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> moves){
         int row = myPosition.getRow() + rowStep;
         int col = myPosition.getColumn() + colStep;
         ChessPosition startPos = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
@@ -128,6 +128,23 @@ public class ChessPiece {
             }
             else {
                 break;
+            }
+            row += rowStep;
+            col += colStep;
+        }
+    }
+    public void addSingleMoves(int rowStep, int colStep, ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> moves){
+        int row = myPosition.getRow() + rowStep;
+        int col = myPosition.getColumn() + colStep;
+        ChessPosition startPos = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        if (row <= 8 && row >= 1 && col <= 8 && col >= 1) {
+            ChessPosition newPos = new ChessPosition(row, col);
+            ChessPiece pieceAtNewPos = board.getPiece(newPos);
+
+            if (pieceAtNewPos == null || pieceAtNewPos.getTeamColor() != this.getTeamColor()) {
+                ChessMove newMove = new ChessMove(startPos, newPos, null);
+                moves.add(newMove);
+//                System.out.println("(" + row + "," + col + ")");
             }
             row += rowStep;
             col += colStep;
