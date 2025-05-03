@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -10,7 +11,12 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -29,14 +35,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return type;
     }
 
     /**
@@ -47,6 +53,58 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        PieceType type = getPieceType();
+        ArrayList<ChessMove> moves = new ArrayList<>();
+        switch (type) {
+            case KING:
+                // Logic for king's moves
+                break;
+            case QUEEN:
+                // Logic for queen's moves
+                break;
+            case BISHOP:
+                bishopMoves(1, 1, board, myPosition, moves);
+                bishopMoves(-1, -1, board, myPosition, moves);
+                bishopMoves(1, -1, board, myPosition, moves);
+                bishopMoves(-1, 1, board, myPosition, moves);
+                break;
+            case KNIGHT:
+                // Logic for knight's moves
+                break;
+            case ROOK:
+                // Logic for rook's moves
+                break;
+            case PAWN:
+                // Logic for pawn's moves
+                break;
+        }
+
+        return moves;
+    }
+    public void bishopMoves(int rowStep, int colStep, ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> moves){
+        int row = myPosition.getRow() + rowStep;
+        int col = myPosition.getColumn() + colStep;
+        ChessPosition startPos = new ChessPosition(myPosition.getRow(), myPosition.getColumn());
+        while (row <= 8 && row >= 1 && col <= 8 && col >= 1) {
+            ChessPosition newPos = new ChessPosition(row, col);
+            ChessPiece pieceAtNewPos = board.getPiece(newPos);
+
+            if (pieceAtNewPos == null) {
+                ChessMove newMove = new ChessMove(startPos,newPos,null);
+                moves.add(newMove);
+                System.out.println("(" + row + "," + col + ")");
+            }
+            else if (pieceAtNewPos.getTeamColor() != this.getTeamColor()) {
+                ChessMove newMove = new ChessMove(startPos,newPos,null);
+                moves.add(newMove);
+                System.out.println("(" + row + "," + col + ")");
+                break;
+            }
+            else {
+                break;
+            }
+            row += rowStep;
+            col += colStep;
+        }
     }
 }
