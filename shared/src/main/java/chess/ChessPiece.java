@@ -84,7 +84,14 @@ public class ChessPiece {
                 addLoopMoves(-1, 1, board, myPosition, moves);
                 break;
             case KNIGHT:
-                // Logic for knight's moves
+                addSingleMoves(2, 1, board, myPosition, moves);
+                addSingleMoves(2, -1, board, myPosition, moves);
+                addSingleMoves(1, 2, board, myPosition, moves);
+                addSingleMoves(1, -2, board, myPosition, moves);
+                addSingleMoves(-2, 1, board, myPosition, moves);
+                addSingleMoves(-2, -1, board, myPosition, moves);
+                addSingleMoves(-1, 2, board, myPosition, moves);
+                addSingleMoves(-1, -2, board, myPosition, moves);
                 break;
             case ROOK:
                 addLoopMoves(1, 0, board, myPosition, moves);
