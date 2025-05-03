@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -81,6 +82,21 @@ public class ChessPiece {
 
         return moves;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
     public void bishopMoves(int rowStep, int colStep, ChessBoard board, ChessPosition myPosition, ArrayList<ChessMove> moves){
         int row = myPosition.getRow() + rowStep;
         int col = myPosition.getColumn() + colStep;
@@ -92,12 +108,12 @@ public class ChessPiece {
             if (pieceAtNewPos == null) {
                 ChessMove newMove = new ChessMove(startPos,newPos,null);
                 moves.add(newMove);
-                System.out.println("(" + row + "," + col + ")");
+//                System.out.println("(" + row + "," + col + ")");
             }
             else if (pieceAtNewPos.getTeamColor() != this.getTeamColor()) {
                 ChessMove newMove = new ChessMove(startPos,newPos,null);
                 moves.add(newMove);
-                System.out.println("(" + row + "," + col + ")");
+//                System.out.println("(" + row + "," + col + ")");
                 break;
             }
             else {
