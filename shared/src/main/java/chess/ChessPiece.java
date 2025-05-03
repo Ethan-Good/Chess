@@ -61,7 +61,14 @@ public class ChessPiece {
                 // Logic for king's moves
                 break;
             case QUEEN:
-                // Logic for queen's moves
+                bishopMoves(1, 1, board, myPosition, moves);
+                bishopMoves(-1, -1, board, myPosition, moves);
+                bishopMoves(1, -1, board, myPosition, moves);
+                bishopMoves(-1, 1, board, myPosition, moves);
+                bishopMoves(1, 0, board, myPosition, moves);
+                bishopMoves(-1, 0, board, myPosition, moves);
+                bishopMoves(0, -1, board, myPosition, moves);
+                bishopMoves(0, 1, board, myPosition, moves);
                 break;
             case BISHOP:
                 bishopMoves(1, 1, board, myPosition, moves);
