@@ -58,7 +58,14 @@ public class ChessPiece {
         ArrayList<ChessMove> moves = new ArrayList<>();
         switch (type) {
             case KING:
-                // Logic for king's moves
+                addSingleMoves(1, 1, board, myPosition, moves);
+                addSingleMoves(-1, -1, board, myPosition, moves);
+                addSingleMoves(1, -1, board, myPosition, moves);
+                addSingleMoves(-1, 1, board, myPosition, moves);
+                addSingleMoves(1, 0, board, myPosition, moves);
+                addSingleMoves(-1, 0, board, myPosition, moves);
+                addSingleMoves(0, -1, board, myPosition, moves);
+                addSingleMoves(0, 1, board, myPosition, moves);
                 break;
             case QUEEN:
                 addLoopMoves(1, 1, board, myPosition, moves);
@@ -146,8 +153,6 @@ public class ChessPiece {
                 moves.add(newMove);
 //                System.out.println("(" + row + "," + col + ")");
             }
-            row += rowStep;
-            col += colStep;
         }
     }
 }
