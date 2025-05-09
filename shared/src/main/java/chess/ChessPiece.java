@@ -185,12 +185,12 @@ public class ChessPiece {
                     moves.add(new ChessMove(startPos, newPos, PieceType.ROOK));
                     moves.add(new ChessMove(startPos, newPos, PieceType.BISHOP));
                     moves.add(new ChessMove(startPos, newPos, PieceType.KNIGHT));
-                    System.out.println("(" + row + "," + col + ")");
+//                    System.out.println("(" + row + "," + col + ")");
                 }
                 else {
                     ChessMove newMove = new ChessMove(startPos, newPos, null);
                     moves.add(newMove);
-                    System.out.println("(" + row + "," + col + ")");
+//                    System.out.println("(" + row + "," + col + ")");
                 }
 
                 //if pawn is in initial position
@@ -202,7 +202,7 @@ public class ChessPiece {
                     if (pieceAtNewNewPos == null){
                         ChessMove newMove = new ChessMove(startPos, newNewPos, null);
                         moves.add(newMove);
-                        System.out.println("(" + row + "," + col + ")");
+//                        System.out.println("(" + row + "," + col + ")");
                     }
                 }
             }
@@ -230,11 +230,11 @@ public class ChessPiece {
                         moves.add(new ChessMove(startPos, newPos, PieceType.ROOK));
                         moves.add(new ChessMove(startPos, newPos, PieceType.BISHOP));
                         moves.add(new ChessMove(startPos, newPos, PieceType.KNIGHT));
-                        System.out.println("(" + row + "," + col + ")");
+//                        System.out.println("(" + row + "," + col + ")");
                     } else {
                         ChessMove newMove = new ChessMove(startPos, newPos, null);
                         moves.add(newMove);
-                        System.out.println("(" + row + "," + col + ")");
+//                        System.out.println("(" + row + "," + col + ")");
                     }
                 }
             }

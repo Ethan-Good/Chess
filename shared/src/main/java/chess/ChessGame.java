@@ -15,7 +15,7 @@ public class ChessGame {
     private TeamColor turn = TeamColor.WHITE;
     private ChessBoard board = new ChessBoard();
     public ChessGame() {
-
+        board.resetBoard();
     }
 
     /**
@@ -66,6 +66,7 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
         if (piece == null) {
+            System.out.println("no piece there");
             return null;
         }
         Collection<ChessMove> moves = piece.pieceMoves(board,startPosition);
@@ -75,6 +76,7 @@ public class ChessGame {
             ChessPosition startPos = move.getStartPosition();
             ChessPosition endPos = move.getEndPosition();
             ChessPiece.PieceType promotion = move.getPromotionPiece();
+            System.out.println("current move = (" + endPos.getRow() + "," + endPos.getColumn() + ")");
 
             //execute move
             board.addPiece(startPos, null);
@@ -111,13 +113,22 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        //check if there is anything on the board
+        Collection<ChessPosition> whites = board.findAllPiecesOfColor(TeamColor.WHITE);
+        Collection<ChessPosition> blacks = board.findAllPiecesOfColor(TeamColor.BLACK);
 
+        if (blacks.isEmpty() && whites.isEmpty()) {
+            System.out.println("there are no pieces on the board lol");
+        }
 
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
         ChessPiece.PieceType promotion = move.getPromotionPiece();
 
         ChessPiece piece = board.getPiece(startPos);
+        if (piece == null) {
+            System.out.println("no piece there - makeMove");
+        }
 
         //make sure move is valid
         if (piece != null && piece.getTeamColor() != getTeamTurn()) {
@@ -130,11 +141,13 @@ public class ChessGame {
             throw new InvalidMoveException("No valid moves");
         }
         for (ChessMove validMove : validMoves) {
-            if (validMove == move) {
+            if (validMove.equals(move)) {
+                System.out.println("move is valid");
                 throwException = false;
             }
         }
         if (throwException) {
+
             throw new InvalidMoveException("Not a valid move");
         }
 
