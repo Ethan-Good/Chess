@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -41,6 +42,20 @@ public class ChessGame {
         BLACK
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return turn == chessGame.turn && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(turn, board);
+    }
+
     /**
      * Gets a valid moves for a piece at the given location
      *
@@ -50,6 +65,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
+        if (piece == null) {
+            return null;
+        }
         Collection<ChessMove> moves = piece.pieceMoves(board,startPosition);
         Iterator<ChessMove> iterator = moves.iterator();
         while (iterator.hasNext()) {
@@ -102,12 +120,15 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPos);
 
         //make sure move is valid
-        if (piece.getTeamColor() != getTeamTurn()) {
+        if (piece != null && piece.getTeamColor() != getTeamTurn()) {
             throw new InvalidMoveException("It's not your turn");
         }
 
         Collection<ChessMove> validMoves = validMoves(startPos);
         boolean throwException = true;
+        if (validMoves == null) {
+            throw new InvalidMoveException("No valid moves");
+        }
         for (ChessMove validMove : validMoves) {
             if (validMove == move) {
                 throwException = false;
