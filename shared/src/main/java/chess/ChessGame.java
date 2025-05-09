@@ -82,7 +82,25 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        
+        ChessPosition kingPos = board.findPiece(ChessPiece.PieceType.KING, teamColor);
+        Collection<ChessPosition> opponentPositions;
+        if (teamColor == TeamColor.WHITE) {
+            opponentPositions = board.findAllPiecesOfColor(TeamColor.BLACK);
+        }
+        else {
+            opponentPositions = board.findAllPiecesOfColor(TeamColor.WHITE);
+        }
+        for (ChessPosition pos : opponentPositions) {
+            ChessPiece piece = board.getPiece(pos);
+            Collection<ChessMove> moves = piece.pieceMoves(board, pos);
+            for (ChessMove move : moves) {
+                ChessPosition endPos = move.getEndPosition();
+                if (endPos == kingPos) { // maybe -> (endPos.equals(kingPos))
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
