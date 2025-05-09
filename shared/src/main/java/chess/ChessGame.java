@@ -76,7 +76,7 @@ public class ChessGame {
             ChessPosition startPos = move.getStartPosition();
             ChessPosition endPos = move.getEndPosition();
             ChessPiece.PieceType promotion = move.getPromotionPiece();
-            System.out.println("current move = (" + endPos.getRow() + "," + endPos.getColumn() + ")");
+//            System.out.println("current move = (" + endPos.getRow() + "," + endPos.getColumn() + ")");
 
             //execute move
             board.addPiece(startPos, null);
@@ -142,7 +142,7 @@ public class ChessGame {
         }
         for (ChessMove validMove : validMoves) {
             if (validMove.equals(move)) {
-                System.out.println("move is valid");
+//                System.out.println("move is valid");
                 throwException = false;
             }
         }
@@ -192,7 +192,9 @@ public class ChessGame {
             Collection<ChessMove> moves = piece.pieceMoves(board, pos);
             for (ChessMove move : moves) {
                 ChessPosition endPos = move.getEndPosition();
-                if (endPos == kingPos) { // maybe -> (endPos.equals(kingPos))
+//                System.out.println("kingPos = (" + kingPos.getRow() + "," + kingPos.getColumn() + ")");
+//                System.out.println("endPos = (" + endPos.getRow() + "," + endPos.getColumn() + ")\n");
+                if (endPos.equals(kingPos)) {
                     return true;
                 }
             }
