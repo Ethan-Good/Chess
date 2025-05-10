@@ -78,6 +78,8 @@ public class ChessGame {
             ChessPiece.PieceType promotion = move.getPromotionPiece();
 //            System.out.println("current move = (" + endPos.getRow() + "," + endPos.getColumn() + ")");
 
+            //see if a piece is at endPos
+            ChessPiece captured = board.getPiece(endPos);
             //execute move
             board.addPiece(startPos, null);
             if (promotion == null) {
@@ -94,7 +96,13 @@ public class ChessGame {
             }
 
             //revert the board back to normal
-            board.addPiece(endPos, null);
+            if (captured == null) {
+                board.addPiece(endPos, null);
+            }
+            else {
+                board.addPiece(endPos, captured);
+            }
+
             board.addPiece(startPos, piece);
 
             //remove if in check
@@ -192,8 +200,6 @@ public class ChessGame {
             Collection<ChessMove> moves = piece.pieceMoves(board, pos);
             for (ChessMove move : moves) {
                 ChessPosition endPos = move.getEndPosition();
-//                System.out.println("kingPos = (" + kingPos.getRow() + "," + kingPos.getColumn() + ")");
-//                System.out.println("endPos = (" + endPos.getRow() + "," + endPos.getColumn() + ")\n");
                 if (endPos.equals(kingPos)) {
                     return true;
                 }
@@ -214,6 +220,14 @@ public class ChessGame {
         //check valid moves of each piece
         //if valid moves aren't empty -> return false
 
+        Collection<ChessPosition> positions = board.findAllPiecesOfColor(teamColor);
+        for (ChessPosition pos : positions) {
+            Collection<ChessMove> validMoves = validMoves(pos);
+            if (!validMoves.isEmpty()){
+                return false;
+            }
+        }
+
         if (!isInCheck(teamColor)) {
             return false;
         }
@@ -228,10 +242,13 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        //get all pieces of this team
-        //loop thru
-        //check valid moves of each piece
-        //if valid moves aren't empty -> return false
+        Collection<ChessPosition> positions = board.findAllPiecesOfColor(teamColor);
+        for (ChessPosition pos : positions) {
+            Collection<ChessMove> validMoves = validMoves(pos);
+            if (!validMoves.isEmpty()){
+                return false;
+            }
+        }
 
         if (isInCheck(teamColor)) {
             return false;

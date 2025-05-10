@@ -74,7 +74,7 @@ public class ChessBoard {
                 }
             }
         }
-        return  positions;
+        return positions;
     }
 
     /**
