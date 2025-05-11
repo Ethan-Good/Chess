@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -14,8 +11,35 @@ import java.util.Objects;
 public class ChessGame {
     private TeamColor turn = TeamColor.WHITE;
     private ChessBoard board = new ChessBoard();
+
+    private boolean whiteKingMoved = false;
+    private boolean blackKingMoved = false;
+    private boolean whiteKingRookMoved = false;
+    private boolean whiteQueenRookMoved = false;
+    private boolean blackKingRookMoved = false;
+    private boolean blackQueenRookMoved = false;
+
     public ChessGame() {
         board.resetBoard();
+    }
+
+    public boolean hasWhiteKingMoved() {
+        return whiteKingMoved;
+    }
+    public boolean hasBlackKingMoved() {
+        return blackKingMoved;
+    }
+    public boolean hasWhiteKingRookMoved() {
+        return whiteKingRookMoved;
+    }
+    public boolean hasBlackKingRookMoved() {
+        return blackKingRookMoved;
+    }
+    public boolean hasWhiteQueenRookMoved() {
+        return whiteQueenRookMoved;
+    }
+    public boolean hasBlackQueenRookMoved() {
+        return blackQueenRookMoved;
     }
 
     /**
@@ -69,6 +93,19 @@ public class ChessGame {
             return null;
         }
         Collection<ChessMove> moves = piece.pieceMoves(board,startPosition);
+        if (piece.getTeamColor() == TeamColor.WHITE) {
+            if (piece.getPieceType() == ChessPiece.PieceType.KING && !whiteKingMoved) {
+                if (!whiteKingRookMoved) {
+                    
+                }
+                else if (!whiteQueenRookMoved) {
+
+                }
+            }
+        }
+        else {
+
+        }
         Iterator<ChessMove> iterator = moves.iterator();
         while (iterator.hasNext()) {
             ChessMove move = iterator.next();
@@ -153,6 +190,26 @@ public class ChessGame {
         }
         else {
             board.addPiece(endPos, new ChessPiece(piece.getTeamColor(), promotion));
+        }
+
+        //set flags for castling
+        if (piece.getPieceType() == ChessPiece.PieceType.ROOK && startPos.getRow() == 1 && startPos.getColumn() == 1) {
+            whiteQueenRookMoved = true;
+         }
+        else if (piece.getPieceType() == ChessPiece.PieceType.ROOK && startPos.getRow() == 1 && startPos.getColumn() == 8) {
+            whiteKingRookMoved = true;
+        }
+        else if (piece.getPieceType() == ChessPiece.PieceType.ROOK && startPos.getRow() == 8 && startPos.getColumn() == 1) {
+            blackQueenRookMoved = true;
+        }
+        else if (piece.getPieceType() == ChessPiece.PieceType.ROOK && startPos.getRow() == 8 && startPos.getColumn() == 8) {
+            blackKingRookMoved = true;
+        }
+        else if (piece.getPieceType() == ChessPiece.PieceType.KING && startPos.getRow() == 1 && startPos.getColumn() == 5) {
+            whiteKingMoved = true;
+        }
+        else if (piece.getPieceType() == ChessPiece.PieceType.KING && startPos.getRow() == 8 && startPos.getColumn() == 5) {
+            blackKingMoved = true;
         }
 
         //update turn
