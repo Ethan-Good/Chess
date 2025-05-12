@@ -93,21 +93,7 @@ public class ChessGame {
             return null;
         }
         Collection<ChessMove> moves = piece.pieceMoves(board,startPosition);
-        if (piece.getTeamColor() == TeamColor.WHITE) {
-            if (piece.getPieceType() == ChessPiece.PieceType.KING && !whiteKingMoved) {
-                if (!whiteKingRookMoved) {
-                    if (getPiecesBetween(new ChessPosition(1,5), new ChessPosition(1,1)).isEmpty()) {
 
-                    }
-                }
-                else if (!whiteQueenRookMoved) {
-
-                }
-            }
-        }
-        else {
-
-        }
         Iterator<ChessMove> iterator = moves.iterator();
         while (iterator.hasNext()) {
             ChessMove move = iterator.next();
@@ -296,16 +282,45 @@ public class ChessGame {
 
     public boolean canCastleKingsSide(TeamColor color) {
         if (color == TeamColor.WHITE) {
-            ChessPosition kingPos = new ChessPosition(1,5);
-            ChessPosition rookPos = new ChessPosition(1,8);
+            ChessPosition kingPos = new ChessPosition(1, 5);
+            ChessPosition rookPos = new ChessPosition(1, 8);
             if (whiteKingMoved || whiteKingRookMoved || !getPiecesBetween(kingPos, rookPos).isEmpty()
-            || isInCheck(color) || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(1,6), null), TeamColor.WHITE)
-            || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(1,7), null), TeamColor.WHITE)) {
+                    || isInCheck(color) || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(1, 6), null), color)
+                    || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(1, 7), null), color)) {
                 return false;
             }
         }
         else {
+            ChessPosition kingPos = new ChessPosition(8, 5);
+            ChessPosition rookPos = new ChessPosition(8, 8);
+            if (blackKingMoved || blackKingRookMoved || !getPiecesBetween(kingPos, rookPos).isEmpty()
+                    || isInCheck(color) || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(8, 6), null), color)
+                    || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(8, 7), null), color)) {
+                return false;
+            }
+        }
 
+        return true;
+    }
+
+    public boolean canCastleQueensSide(TeamColor color) {
+        if (color == TeamColor.WHITE) {
+            ChessPosition kingPos = new ChessPosition(1, 5);
+            ChessPosition rookPos = new ChessPosition(1, 1);
+            if (whiteKingMoved || whiteQueenRookMoved || !getPiecesBetween(kingPos, rookPos).isEmpty()
+                    || isInCheck(color) || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(1, 4), null), color)
+                    || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(1, 3), null), color)) {
+                return false;
+            }
+        }
+        else {
+            ChessPosition kingPos = new ChessPosition(8, 5);
+            ChessPosition rookPos = new ChessPosition(8, 1);
+            if (blackKingMoved || blackQueenRookMoved || !getPiecesBetween(kingPos, rookPos).isEmpty()
+                    || isInCheck(color) || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(8, 4), null), color)
+                    || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(8, 3), null), color)) {
+                return false;
+            }
         }
 
         return true;
