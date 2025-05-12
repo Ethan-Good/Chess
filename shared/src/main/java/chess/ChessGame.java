@@ -96,7 +96,9 @@ public class ChessGame {
         if (piece.getTeamColor() == TeamColor.WHITE) {
             if (piece.getPieceType() == ChessPiece.PieceType.KING && !whiteKingMoved) {
                 if (!whiteKingRookMoved) {
-                    
+                    if (getPiecesBetween(new ChessPosition(1,5), new ChessPosition(1,1)).isEmpty()) {
+
+                    }
                 }
                 else if (!whiteQueenRookMoved) {
 
@@ -250,6 +252,63 @@ public class ChessGame {
             }
         }
         return false;
+    }
+
+    public boolean isInCheckAfterMove(ChessMove move, TeamColor color) {
+        ChessPosition startPos = move.getStartPosition();
+        ChessPosition endPos =  move.getEndPosition();
+        ChessPiece king = board.getPiece(startPos);
+        ChessPiece captured = board.getPiece(endPos);
+
+        board.addPiece(startPos, null);
+        board.addPiece(endPos, king);
+
+        boolean isInCheck = false;
+        if (isInCheck(color)) {
+            isInCheck = true;
+        }
+
+        board.addPiece(startPos, king);
+        board.addPiece(endPos, captured);
+
+        return isInCheck;
+    }
+
+    public Collection<ChessPosition> getPiecesBetween(ChessPosition kingPos, ChessPosition rookPos) {
+        ArrayList<ChessPosition> positions = new ArrayList<>();
+        if (kingPos.getRow() != rookPos.getRow()) {
+            return positions;
+        }
+        int kingCol = kingPos.getColumn();
+        int rookCol = rookPos.getColumn();
+        int min = Math.min(rookCol, kingCol);
+        int max = Math.max(rookCol, kingCol);
+        for (int i = min+1; i < max; i++) {
+            ChessPosition pos = new ChessPosition(kingPos.getRow(), i);
+            ChessPiece piece = board.getPiece(pos);
+            if (piece != null) {
+                positions.add(pos);
+            }
+        }
+
+        return positions;
+    }
+
+    public boolean canCastleKingsSide(TeamColor color) {
+        if (color == TeamColor.WHITE) {
+            ChessPosition kingPos = new ChessPosition(1,5);
+            ChessPosition rookPos = new ChessPosition(1,8);
+            if (whiteKingMoved || whiteKingRookMoved || !getPiecesBetween(kingPos, rookPos).isEmpty()
+            || isInCheck(color) || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(1,6), null), TeamColor.WHITE)
+            || isInCheckAfterMove(new ChessMove(kingPos, new ChessPosition(1,7), null), TeamColor.WHITE)) {
+                return false;
+            }
+        }
+        else {
+
+        }
+
+        return true;
     }
 
     /**
