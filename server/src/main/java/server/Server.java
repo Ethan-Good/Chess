@@ -1,6 +1,10 @@
 package server;
 
 import spark.*;
+import server.handler.ClearHandler;
+import service.ClearService;
+import dataaccess.*;
+import dataaccess.memory.*;
 
 public class Server {
 
@@ -10,7 +14,13 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/db", new ClearHandler());
+
+        UserDAO userDAO = new MemoryUserDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
+        ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
+
+        Spark.delete("/db", new ClearHandler(clearService));
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
