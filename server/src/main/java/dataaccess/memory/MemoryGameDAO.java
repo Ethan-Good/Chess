@@ -3,6 +3,7 @@ package dataaccess.memory;
 import dataaccess.GameDAO;
 import dataaccess.DataAccessException;
 import model.GameData;
+import model.UserData;
 
 import java.util.Collection;
 import java.util.HashMap;
