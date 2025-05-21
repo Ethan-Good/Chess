@@ -20,17 +20,15 @@ public class RegisterHandler implements Route {
     @Override
     public Object handle(Request req, Response res) {
         try {
-            // Deserialize the request body into a RegisterRequest
+            
             RegisterRequest request = gson.fromJson(req.body(), RegisterRequest.class);
 
-            // Check for missing or blank fields
             if (request.username() == null || request.password() == null || request.email() == null ||
                     request.username().isBlank() || request.password().isBlank() || request.email().isBlank()) {
                 res.status(400);
                 return gson.toJson(new ErrorMessage("Error: bad request"));
             }
 
-            // Call the service method
             RegisterResult result = userService.register(request);
             res.status(200);
             return gson.toJson(result);
