@@ -17,6 +17,17 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public void createAuth(AuthData authData) {
-        auths.put(authData.username(), authData);
+        auths.put(authData.authToken(), authData);
+    }
+
+    @Override
+    public AuthData getAuth(String authToken) {
+        System.out.println("Auth map: " + auths);
+        return auths.get(authToken);
+    }
+
+    @Override
+    public void deleteAuth(AuthData authData) {
+        auths.remove(authData.authToken());
     }
 }

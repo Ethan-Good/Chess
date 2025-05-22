@@ -4,7 +4,6 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import model.AuthData;
-import model.Request.LoginRequest;
 import model.UserData;
 import java.util.UUID;
 import spark.Request;
@@ -34,6 +33,11 @@ public class UserService {
             super(message);
         }
     }
+    public class BadRequestException extends Exception {
+        public BadRequestException(String message) {
+            super(message);
+        }
+    }
 
     public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, DataAccessException {
         if (userDAO.getUser(registerRequest.username()) != null) {
@@ -49,12 +53,12 @@ public class UserService {
         return new RegisterResult(newUser.username(), authToken);
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws DataAccessException, UnauthorizedException {
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException, UnauthorizedException, BadRequestException {
         if (userDAO.getUser(loginRequest.username()) == null) {
-            throw new UnauthorizedException("No Username or incorrect Password");
+            throw new UnauthorizedException("Error: Unauthorized");
         }
         if (!userDAO.checkPassword(loginRequest.username(), loginRequest.password())) {
-            throw new UnauthorizedException("No Username or incorrect Password");
+            throw new UnauthorizedException("Incorrect Username or Password");
         }
 
         String authToken = UUID.randomUUID().toString();
@@ -62,5 +66,14 @@ public class UserService {
         authDAO.createAuth(authData);
 
         return new LoginResult(loginRequest.username(), authToken);
+    }
+
+    public void logout(LogoutRequest logoutRequest) throws UnauthorizedException {
+        if (authDAO.getAuth(logoutRequest.authToken()) == null) {
+            throw new UnauthorizedException("Error: AuthData is null");
+        }
+
+        AuthData authData = authDAO.getAuth(logoutRequest.authToken());
+        authDAO.deleteAuth(authData);
     }
 }

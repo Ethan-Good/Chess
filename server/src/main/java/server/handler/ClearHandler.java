@@ -17,7 +17,7 @@ public class ClearHandler implements Route {
 
     @Override
     public Object handle(Request req, Response res) throws DataAccessException {
-        clearService.clear(); // Clear users, auths, and games
+        clearService.clear();
         res.status(200);
         res.type("application/json");
         return gson.toJson(new ClearResult());

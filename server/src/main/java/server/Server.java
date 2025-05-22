@@ -1,6 +1,7 @@
 package server;
 
 import server.handler.LoginHandler;
+import server.handler.LogoutHandler;
 import server.handler.RegisterHandler;
 import service.UserService;
 import spark.*;
@@ -27,6 +28,7 @@ public class Server {
         Spark.delete("/db", new ClearHandler(clearService));
         Spark.post("/user", new RegisterHandler(userService));
         Spark.post("/session", new LoginHandler(userService));
+        Spark.delete("/session", new LogoutHandler(userService));
 
         //This line initializes the server and can be removed once you have a functioning endpoint
         Spark.init();
