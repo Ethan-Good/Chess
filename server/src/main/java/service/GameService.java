@@ -5,6 +5,7 @@ import model.AuthData;
 import model.GameData;
 import model.Request.CreateGameRequest;
 import model.Result.CreateGameResult;
+import model.Request.JoinGameRequest;
 import chess.ChessGame;
 import model.Result.ListGamesResult;
 import java.util.List;
@@ -53,5 +54,35 @@ public class GameService {
             gameInfos.add(gameInfo);
         }
         return new ListGamesResult(gameInfos);
+    }
+
+    public void joinGame(JoinGameRequest request, String authToken) throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
+        AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            throw new dataaccess.UnauthorizedException("Error: unauthorized");
+        }
+
+        if (request.playerColor() == null) {
+            throw new dataaccess.BadRequestException("Error: bad request, color is null");
+        }
+
+        GameData game = gameDAO.getGame(request.gameID());
+        if (game == null) {
+            throw new dataaccess.BadRequestException("Error: bad request, game is null");
+        }
+
+        String username = auth.username();
+        if (request.playerColor() == ChessGame.TeamColor.WHITE) {
+            if (game.whiteUsername() != null) {
+                throw new dataaccess.AlreadyTakenException("Error: already taken");
+            }
+            game = new GameData(game.gameID(), username, game.blackUsername(), game.gameName(), game.game());
+        } else {
+            if (game.blackUsername() != null) {
+                throw new dataaccess.AlreadyTakenException("Error: already taken");
+            }
+            game = new GameData(game.gameID(), game.whiteUsername(), username, game.gameName(), game.game());
+        }
+        gameDAO.updateGame(game);
     }
 }
