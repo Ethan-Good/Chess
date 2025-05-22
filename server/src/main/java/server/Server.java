@@ -15,8 +15,6 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
-
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
@@ -31,9 +29,6 @@ public class Server {
         Spark.post("/game", new CreateGameHandler(gameService));
         Spark.get("/game", new ListGamesHandler(gameService));
         Spark.put("/game", new JoinGameHandler(gameService));
-
-        //This line initializes the server and can be removed once you have a functioning endpoint
-        Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();

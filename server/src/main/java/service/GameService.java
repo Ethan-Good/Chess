@@ -9,9 +9,7 @@ import model.Request.JoinGameRequest;
 import chess.ChessGame;
 import model.Result.ListGamesResult;
 import java.util.List;
-
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class GameService {
     private final GameDAO gameDAO;
@@ -39,14 +37,14 @@ public class GameService {
         return new CreateGameResult(gameID);
     }
 
-    public ListGamesResult getAllGames(String authToken) throws DataAccessException, UnauthorizedException {
+    public ListGamesResult listGames(String authToken) throws DataAccessException, UnauthorizedException {
         AuthData auth = authDAO.getAuth(authToken);
         if (auth == null) {
             throw new dataaccess.UnauthorizedException("Error: unauthorized");
         }
 
 
-        List<GameData> allGameData = gameDAO.listGames();
+        List<GameData> allGameData = gameDAO.getAllGames();
 
         List<ListGamesResult.Game> gameInfos = new ArrayList<>();
         for (GameData gameData : allGameData) {

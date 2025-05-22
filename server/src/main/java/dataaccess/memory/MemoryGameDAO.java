@@ -3,12 +3,9 @@ package dataaccess.memory;
 import dataaccess.GameDAO;
 import dataaccess.DataAccessException;
 import model.GameData;
-import chess.ChessGame;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO {
@@ -35,7 +32,7 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public List<GameData> listGames() throws DataAccessException {
+    public List<GameData> getAllGames() throws DataAccessException {
         return new ArrayList<>(games.values());
     }
 
@@ -46,31 +43,5 @@ public class MemoryGameDAO implements GameDAO {
             throw new DataAccessException("Game not found.");
         }
         games.put(gameID, updatedGame);
-    }
-
-    @Override
-    public void joinGame(int gameID, String username, ChessGame.TeamColor playerColor) throws DataAccessException {
-        GameData game = games.get(gameID);
-        if (game == null) {
-            throw new DataAccessException("Game not found.");
-        }
-
-        String white = game.whiteUsername();
-        String black = game.blackUsername();
-
-        switch (playerColor) {
-            case WHITE -> {
-                if (white != null) throw new DataAccessException("White already taken.");
-                white = username;
-            }
-            case BLACK -> {
-                if (black != null) throw new DataAccessException("Black already taken.");
-                black = username;
-            }
-            default -> throw new DataAccessException("Invalid color.");
-        }
-
-        GameData updated = new GameData(gameID, white, black, game.gameName(), game.game());
-        updateGame(updated);
     }
 }

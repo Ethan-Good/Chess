@@ -22,7 +22,7 @@ public class ListGamesHandler implements Route {
         try {
             String authToken = req.headers("authorization");
 
-            ListGamesResult result = gameService.getAllGames(authToken);
+            ListGamesResult result = gameService.listGames(authToken);
             res.status(200);
             return gson.toJson(result);
 

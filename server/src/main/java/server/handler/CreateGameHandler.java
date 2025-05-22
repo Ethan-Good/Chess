@@ -10,7 +10,6 @@ import service.GameService;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
 import java.util.Map;
 
 public class CreateGameHandler implements Route {

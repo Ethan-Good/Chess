@@ -2,7 +2,6 @@ package server.handler;
 
 import com.google.gson.Gson;
 import dataaccess.*;
-import model.AuthData;
 import model.Request.JoinGameRequest;
 import service.GameService;
 import spark.Request;

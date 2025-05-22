@@ -1,7 +1,6 @@
 package server.handler;
 
 import com.google.gson.Gson;
-import dataaccess.*;
 import model.Request.LoginRequest;
 import model.Result.LoginResult;
 import service.UserService;

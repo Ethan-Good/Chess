@@ -6,8 +6,6 @@ import dataaccess.UserDAO;
 import model.AuthData;
 import model.UserData;
 import java.util.UUID;
-import spark.Request;
-import spark.Response;
 import model.Request.RegisterRequest;
 import model.Result.RegisterResult;
 import model.Request.LoginRequest;
