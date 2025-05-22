@@ -1,7 +1,7 @@
 package server.handler;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import model.Request.LogoutRequest;
 import service.UserService;
 import spark.Request;
@@ -33,7 +33,7 @@ public class LogoutHandler implements Route {
             res.status(200);
             return gson.toJson(new Object());
 
-        } catch (UserService.UnauthorizedException e) {
+        } catch (dataaccess.UnauthorizedException e) {
             res.status(401);
             return gson.toJson(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {

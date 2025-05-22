@@ -1,7 +1,7 @@
 package server.handler;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
+import dataaccess.*;
 import model.Request.LoginRequest;
 import model.Result.LoginResult;
 import service.UserService;
@@ -34,15 +34,15 @@ public class LoginHandler implements Route {
             res.status(200);
             return gson.toJson(result);
 
-        } catch (UserService.BadRequestException e) {
+        } catch (dataaccess.BadRequestException e) {
             res.status(400);
             return gson.toJson(new ErrorResult("Error: Incorrect Username or Password"));
 
-        } catch (UserService.UnauthorizedException e) {
+        } catch (dataaccess.UnauthorizedException e) {
             res.status(401);
             return gson.toJson(new ErrorResult("Error: Unauthorized"));
 
-        } catch (DataAccessException e) {
+        } catch (dataaccess.DataAccessException e) {
             res.status(500);
             return gson.toJson(new ErrorResult("Error: " + e.getMessage()));
         }

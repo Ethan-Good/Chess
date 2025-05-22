@@ -13,6 +13,7 @@ import model.Result.RegisterResult;
 import model.Request.LoginRequest;
 import model.Result.LoginResult;
 import model.Request.LogoutRequest;
+import dataaccess.*;
 
 public class UserService {
     private final UserDAO userDAO;
@@ -23,25 +24,9 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public class AlreadyTakenException extends Exception {
-        public AlreadyTakenException(String message) {
-            super(message);
-        }
-    }
-    public class UnauthorizedException extends Exception {
-        public UnauthorizedException(String message) {
-            super(message);
-        }
-    }
-    public class BadRequestException extends Exception {
-        public BadRequestException(String message) {
-            super(message);
-        }
-    }
-
     public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, DataAccessException {
         if (userDAO.getUser(registerRequest.username()) != null) {
-            throw new AlreadyTakenException("Username is already taken");
+            throw new dataaccess.AlreadyTakenException("Username is already taken");
         }
         UserData newUser = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
         userDAO.createUser(newUser);
@@ -55,10 +40,10 @@ public class UserService {
 
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException, UnauthorizedException, BadRequestException {
         if (userDAO.getUser(loginRequest.username()) == null) {
-            throw new UnauthorizedException("Error: Unauthorized");
+            throw new dataaccess.UnauthorizedException("Error: Unauthorized");
         }
         if (!userDAO.checkPassword(loginRequest.username(), loginRequest.password())) {
-            throw new UnauthorizedException("Incorrect Username or Password");
+            throw new dataaccess.UnauthorizedException("Incorrect Username or Password");
         }
 
         String authToken = UUID.randomUUID().toString();
@@ -70,7 +55,7 @@ public class UserService {
 
     public void logout(LogoutRequest logoutRequest) throws UnauthorizedException {
         if (authDAO.getAuth(logoutRequest.authToken()) == null) {
-            throw new UnauthorizedException("Error: AuthData is null");
+            throw new dataaccess.UnauthorizedException("Error: AuthData is null");
         }
 
         AuthData authData = authDAO.getAuth(logoutRequest.authToken());
