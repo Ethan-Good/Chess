@@ -13,13 +13,12 @@ import model.Result.LoginResult;
 import model.Request.LogoutRequest;
 import dataaccess.*;
 
-public class UserService {
+public class UserService extends BaseService{
     private final UserDAO userDAO;
-    private final AuthDAO authDAO;
 
     public UserService(UserDAO userDAO, AuthDAO authDAO) {
+        super(authDAO);
         this.userDAO = userDAO;
-        this.authDAO = authDAO;
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, DataAccessException {
@@ -52,9 +51,7 @@ public class UserService {
     }
 
     public void logout(LogoutRequest logoutRequest) throws UnauthorizedException {
-        if (authDAO.getAuth(logoutRequest.authToken()) == null) {
-            throw new dataaccess.UnauthorizedException("Error: AuthData is null");
-        }
+        AuthData auth = authenticate(logoutRequest.authToken());
 
         AuthData authData = authDAO.getAuth(logoutRequest.authToken());
         authDAO.deleteAuth(authData);

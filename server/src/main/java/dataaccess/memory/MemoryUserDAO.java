@@ -3,8 +3,6 @@ package dataaccess.memory;
 import dataaccess.UserDAO;
 import dataaccess.DataAccessException;
 import model.UserData;
-
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Objects;
 

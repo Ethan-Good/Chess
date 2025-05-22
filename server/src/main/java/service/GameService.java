@@ -11,20 +11,16 @@ import model.Result.ListGamesResult;
 import java.util.List;
 import java.util.ArrayList;
 
-public class GameService {
+public class GameService extends BaseService {
     private final GameDAO gameDAO;
-    private final AuthDAO authDAO;
 
     public GameService(GameDAO gameDAO, AuthDAO authDAO) {
+        super(authDAO);
         this.gameDAO = gameDAO;
-        this.authDAO = authDAO;
     }
 
     public CreateGameResult createGame(String authToken, CreateGameRequest request) throws DataAccessException, UnauthorizedException, BadRequestException {
-        AuthData auth = authDAO.getAuth(authToken);
-        if (auth == null) {
-            throw new dataaccess.UnauthorizedException("Error: unauthorized");
-        }
+        AuthData auth = authenticate(authToken);
 
         if (request.gameName() == null || request.gameName().isBlank()) {
             throw new dataaccess.BadRequestException("Error: bad request");
@@ -38,11 +34,7 @@ public class GameService {
     }
 
     public ListGamesResult listGames(String authToken) throws DataAccessException, UnauthorizedException {
-        AuthData auth = authDAO.getAuth(authToken);
-        if (auth == null) {
-            throw new dataaccess.UnauthorizedException("Error: unauthorized");
-        }
-
+        AuthData auth = authenticate(authToken);
 
         List<GameData> allGameData = gameDAO.getAllGames();
 
@@ -55,10 +47,7 @@ public class GameService {
     }
 
     public void joinGame(JoinGameRequest request, String authToken) throws DataAccessException, UnauthorizedException, BadRequestException, AlreadyTakenException {
-        AuthData auth = authDAO.getAuth(authToken);
-        if (auth == null) {
-            throw new dataaccess.UnauthorizedException("Error: unauthorized");
-        }
+        AuthData auth = authenticate(authToken);
 
         if (request.playerColor() == null) {
             throw new dataaccess.BadRequestException("Error: bad request, color is null");
