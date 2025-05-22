@@ -20,7 +20,7 @@ public class RegisterHandler implements Route {
     @Override
     public Object handle(Request req, Response res) {
         try {
-            
+
             RegisterRequest request = gson.fromJson(req.body(), RegisterRequest.class);
 
             if (request.username() == null || request.password() == null || request.email() == null ||

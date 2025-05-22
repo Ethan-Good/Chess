@@ -6,6 +6,7 @@ import model.UserData;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class MemoryUserDAO implements UserDAO {
     private final HashMap<String, UserData> users = new HashMap<>();
@@ -26,5 +27,14 @@ public class MemoryUserDAO implements UserDAO {
             throw new DataAccessException("User already exists");
         }
         users.put(userData.username(), userData);
+    }
+
+    @Override
+    public Boolean checkPassword (String username, String password) throws DataAccessException {
+        UserData userData = getUser(username);
+        if (Objects.equals(userData.password(), password)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 }
