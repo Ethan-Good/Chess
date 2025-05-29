@@ -29,6 +29,46 @@ public class DatabaseManager {
         }
     }
 
+    public static void createTables() throws DataAccessException {
+        try (var conn = getConnection(); var stmt = conn.createStatement()) {
+
+            stmt.executeUpdate(
+            """
+            CREATE TABLE IF NOT EXISTS user (
+                username VARCHAR(255) PRIMARY KEY,
+                password VARCHAR(255) NOT NULL
+                email VARCHAR(255) NOT NULL
+            )
+        """
+            );
+
+            stmt.executeUpdate(
+            """
+            CREATE TABLE IF NOT EXISTS auth (
+                authToken VARCHAR(255) PRIMARY KEY,
+                username VARCHAR(255),
+                FOREIGN KEY (username) REFERENCES user(username)
+            )
+        """
+            );
+
+            stmt.executeUpdate(
+            """
+            CREATE TABLE IF NOT EXISTS game (
+                gameID INT AUTO_INCREMENT PRIMARY KEY,
+                whiteUsername VARCHAR(255),
+                blackUsername VARCHAR(255),
+                gameName VARCHAR(255),
+                game TEXT
+            )
+        """
+            );
+
+        } catch (SQLException e) {
+            throw new DataAccessException("could not create tables", e);
+        }
+    }
+
     /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should
