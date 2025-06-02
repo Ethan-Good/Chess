@@ -21,22 +21,26 @@ public class DatabaseManager {
      */
     static public void createDatabase() throws DataAccessException {
         var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
+        System.out.println("Connecting with URL: " + connectionUrl);
+        System.out.printf("DB Name: %s | User: %s%n", databaseName, dbUsername);
         try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
         } catch (SQLException ex) {
+            ex.printStackTrace();
             throw new DataAccessException("failed to create database", ex);
         }
     }
 
     public static void createTables() throws DataAccessException {
-        try (var conn = getConnection(); var stmt = conn.createStatement()) {
+        try (var conn = getConnection();
+             var stmt = conn.createStatement()) {
 
             stmt.executeUpdate(
             """
-            CREATE TABLE IF NOT EXISTS user (
+            CREATE TABLE IF NOT EXISTS users (
                 username VARCHAR(255) PRIMARY KEY,
-                password VARCHAR(255) NOT NULL
+                password VARCHAR(255) NOT NULL,
                 email VARCHAR(255) NOT NULL
             )
         """
@@ -47,7 +51,7 @@ public class DatabaseManager {
             CREATE TABLE IF NOT EXISTS auth (
                 authToken VARCHAR(255) PRIMARY KEY,
                 username VARCHAR(255),
-                FOREIGN KEY (username) REFERENCES user(username)
+                FOREIGN KEY (username) REFERENCES users(username)
             )
         """
             );
@@ -81,7 +85,7 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
+    public static Connection getConnection() throws DataAccessException {
         try {
             //do not wrap the following line with a try-with-resources
             var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);

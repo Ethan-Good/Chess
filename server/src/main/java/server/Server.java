@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.SQL.SQLUserDAO;
 import server.handler.*;
 import service.GameService;
 import service.UserService;
@@ -15,7 +16,14 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        UserDAO userDAO = new MemoryUserDAO();
+        try {
+            DatabaseManager.createDatabase();
+            DatabaseManager.createTables(); // If you also define this
+        } catch (DataAccessException e) {
+            System.err.println("Failed to initialize database: " + e.getMessage());
+        }
+
+        UserDAO userDAO = new SQLUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
