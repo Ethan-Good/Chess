@@ -50,7 +50,7 @@ public class UserService extends BaseService{
         return new LoginResult(loginRequest.username(), authToken);
     }
 
-    public void logout(LogoutRequest logoutRequest) throws UnauthorizedException {
+    public void logout(LogoutRequest logoutRequest) throws UnauthorizedException, DataAccessException {
         AuthData auth = authenticate(logoutRequest.authToken());
 
         AuthData authData = authDAO.getAuth(logoutRequest.authToken());

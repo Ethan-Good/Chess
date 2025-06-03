@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.SQL.SQLAuthDAO;
 import dataaccess.SQL.SQLUserDAO;
 import server.handler.*;
 import service.GameService;
@@ -24,7 +25,7 @@ public class Server {
         }
 
         UserDAO userDAO = new SQLUserDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
+        AuthDAO authDAO = new SQLAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
