@@ -6,6 +6,7 @@ import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 import model.UserData;
 import org.junit.jupiter.api.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -100,8 +101,23 @@ public class SQLUserDAOTests {
     }
 
     @Test
-    void checkPassword_Negative_UserNotFound() throws DataAccessException {
-        assertFalse(userDAO.checkPassword("ghost", "any"));
+    void hashPassword_Positive() {
+        var dao = new SQLUserDAO();
+        String password = "securePassword123";
+        String hashed = dao.hashPassword(password);
+
+        assertNotNull(hashed);
+        assertTrue(BCrypt.checkpw(password, hashed));
+    }
+
+    @Test
+    void hashPassword_Negative() {
+        var dao = new SQLUserDAO();
+        String password = "original";
+        String wrongPassword = "wrong";
+        String hashed = dao.hashPassword(password);
+
+        assertFalse(BCrypt.checkpw(wrongPassword, hashed));
     }
 }
 

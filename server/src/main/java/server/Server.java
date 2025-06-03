@@ -18,7 +18,7 @@ public class Server {
 
         try {
             DatabaseManager.createDatabase();
-            DatabaseManager.createTables(); // If you also define this
+            DatabaseManager.createTables();
         } catch (DataAccessException e) {
             System.err.println("Failed to initialize database: " + e.getMessage());
         }
