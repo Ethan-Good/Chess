@@ -34,10 +34,6 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public int createGame(GameData gameData) throws DataAccessException {
-        System.out.println("Attempting to insert game:");
-        System.out.println("  White: " + gameData.whiteUsername());
-        System.out.println("  Black: " + gameData.blackUsername());
-        System.out.println("  Name: " + gameData.gameName());
         String sql = "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         try (var conn = DatabaseManager.getConnection();
              var stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {

@@ -21,8 +21,8 @@ public class DatabaseManager {
      */
     static public void createDatabase() throws DataAccessException {
         var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
-        System.out.println("Connecting with URL: " + connectionUrl);
-        System.out.printf("DB Name: %s | User: %s%n", databaseName, dbUsername);
+//        System.out.println("Connecting with URL: " + connectionUrl);
+//        System.out.printf("DB Name: %s | User: %s%n", databaseName, dbUsername);
         try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
