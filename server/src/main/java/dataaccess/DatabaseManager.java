@@ -50,22 +50,24 @@ public class DatabaseManager {
             """
             CREATE TABLE IF NOT EXISTS auth (
                 authToken VARCHAR(255) PRIMARY KEY,
-                username VARCHAR(255),
-                FOREIGN KEY (username) REFERENCES users(username)
+                username VARCHAR(255)
             )
         """
+                    //FOREIGN KEY (username) REFERENCES users(username)
             );
 
             stmt.executeUpdate(
             """
             CREATE TABLE IF NOT EXISTS game (
                 gameID INT AUTO_INCREMENT PRIMARY KEY,
-                whiteUsername VARCHAR(255),
-                blackUsername VARCHAR(255),
+                whiteUsername VARCHAR(255) NOT NULL,
+                blackUsername VARCHAR(255) NOT NULL,
                 gameName VARCHAR(255) NOT NULL,
                 game TEXT
             )
         """
+                    //FOREIGN KEY (whiteUsername) REFERENCES users(username),
+                    //                FOREIGN KEY (blackUsername) REFERENCES users(username)
             );
 
         } catch (SQLException e) {
