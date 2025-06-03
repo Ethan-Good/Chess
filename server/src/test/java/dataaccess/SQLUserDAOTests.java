@@ -42,27 +42,27 @@ public class SQLUserDAOTests {
 
     @Test
     void clear_Positive() throws DataAccessException {
-        var user = new UserData("user1", "pass1", "email1@example.com");
+        var user = new UserData("user", "pass", "email");
         userDAO.createUser(user);
-        assertNotNull(userDAO.getUser("user1"));
+        assertNotNull(userDAO.getUser("user"));
 
         userDAO.clear();
-        assertNull(userDAO.getUser("user1"));
+        assertNull(userDAO.getUser("user"));
     }
 
     @Test
     void createUser_Positive() throws DataAccessException {
-        var user = new UserData("alice", "pass", "alice@example.com");
+        var user = new UserData("user", "pass", "email");
         userDAO.createUser(user);
 
-        var found = userDAO.getUser("alice");
+        var found = userDAO.getUser("user");
         assertNotNull(found);
-        assertEquals("alice", found.username());
+        assertEquals("user", found.username());
     }
 
     @Test
-    void createUser_Negative_Duplicate() throws DataAccessException {
-        var user = new UserData("bob", "secret", "bob@example.com");
+    void createUser_Negative() throws DataAccessException {
+        var user = new UserData("user", "pass", "email");
         userDAO.createUser(user);
 
         var ex = assertThrows(DataAccessException.class, () -> userDAO.createUser(user));
@@ -71,39 +71,39 @@ public class SQLUserDAOTests {
 
     @Test
     void getUser_Positive() throws DataAccessException {
-        var user = new UserData("charlie", "mypw", "charlie@example.com");
+        var user = new UserData("user", "pass", "email");
         userDAO.createUser(user);
 
-        var result = userDAO.getUser("charlie");
+        var result = userDAO.getUser("user");
         assertNotNull(result);
-        assertEquals("mypw", result.password());
+        assertTrue(BCrypt.checkpw("pass", result.password()));
     }
 
     @Test
-    void getUser_Negative_NotFound() throws DataAccessException {
+    void getUser_Negative() throws DataAccessException {
         assertNull(userDAO.getUser("nonexistent"));
     }
 
     @Test
     void checkPassword_Positive() throws DataAccessException {
-        var user = new UserData("dave", "correctpass", "dave@example.com");
+        var user = new UserData("user", "pass", "email");
         userDAO.createUser(user);
 
-        assertTrue(userDAO.checkPassword("dave", "correctpass"));
+        assertTrue(userDAO.checkPassword("user", "pass"));
     }
 
     @Test
-    void checkPassword_Negative_WrongPassword() throws DataAccessException {
-        var user = new UserData("erin", "rightpass", "erin@example.com");
+    void checkPassword_Negative() throws DataAccessException {
+        var user = new UserData("user", "pass", "email");
         userDAO.createUser(user);
 
-        assertFalse(userDAO.checkPassword("erin", "wrongpass"));
+        assertFalse(userDAO.checkPassword("user", "wrongPass"));
     }
 
     @Test
     void hashPassword_Positive() {
         var dao = new SQLUserDAO();
-        String password = "securePassword123";
+        String password = "pass";
         String hashed = dao.hashPassword(password);
 
         assertNotNull(hashed);
@@ -113,8 +113,8 @@ public class SQLUserDAOTests {
     @Test
     void hashPassword_Negative() {
         var dao = new SQLUserDAO();
-        String password = "original";
-        String wrongPassword = "wrong";
+        String password = "pass";
+        String wrongPassword = "wrongPass";
         String hashed = dao.hashPassword(password);
 
         assertFalse(BCrypt.checkpw(wrongPassword, hashed));
