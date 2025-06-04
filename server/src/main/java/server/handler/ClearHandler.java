@@ -16,12 +16,19 @@ public class ClearHandler implements Route {
     }
 
     @Override
-    public Object handle(Request req, Response res) throws DataAccessException {
-        clearService.clear();
-        res.status(200);
-        res.type("application/json");
-        return gson.toJson(new ClearResult());
+    public Object handle(Request req, Response res) {
+        try {
+            clearService.clear();
+            res.status(200);
+            res.type("application/json");
+            return gson.toJson(new ClearResult(null));
+        } catch (DataAccessException e) {
+            res.status(500);
+            res.type("application/json");
+            return gson.toJson(new ClearResult("Error clearing database: " + e.getMessage()));
+        }
     }
 
-    private record ClearResult() {}
+    private record ClearResult(String message) {
+    }
 }
