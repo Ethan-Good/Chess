@@ -51,6 +51,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new DataAccessException("Error creating game", e);
         }
     }

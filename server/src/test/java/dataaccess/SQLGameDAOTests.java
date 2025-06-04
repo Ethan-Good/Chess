@@ -56,7 +56,7 @@ public class SQLGameDAOTests {
     }
     @Test
     void createGame_Negative() {
-        var invalidGame = new GameData(0, "user", "user", null, new ChessGame());
+        var invalidGame = new GameData(0, "noUser", "noUser2", null, new ChessGame());
         assertThrows(DataAccessException.class, () -> gameDAO.createGame(invalidGame));
     }
 

@@ -21,8 +21,8 @@ public class DatabaseManager {
      */
     static public void createDatabase() throws DataAccessException {
         var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
-//        System.out.println("Connecting with URL: " + connectionUrl);
-//        System.out.printf("DB Name: %s | User: %s%n", databaseName, dbUsername);
+        System.out.println("Connecting with URL: " + connectionUrl);
+        System.out.printf("DB Name: %s | User: %s%n", databaseName, dbUsername);
         try (var conn = DriverManager.getConnection(connectionUrl, dbUsername, dbPassword);
              var preparedStatement = conn.prepareStatement(statement)) {
             preparedStatement.executeUpdate();
@@ -60,14 +60,14 @@ public class DatabaseManager {
             """
             CREATE TABLE IF NOT EXISTS game (
                 gameID INT AUTO_INCREMENT PRIMARY KEY,
-                whiteUsername VARCHAR(255) NOT NULL,
-                blackUsername VARCHAR(255) NOT NULL,
+                whiteUsername VARCHAR(255),
+                blackUsername VARCHAR(255),
                 gameName VARCHAR(255) NOT NULL,
                 game TEXT
             )
         """
-                    //FOREIGN KEY (whiteUsername) REFERENCES users(username),
-                    //                FOREIGN KEY (blackUsername) REFERENCES users(username)
+//FOREIGN KEY (whiteUsername) REFERENCES users(username),
+//                FOREIGN KEY (blackUsername) REFERENCES users(username)
             );
 
         } catch (SQLException e) {
