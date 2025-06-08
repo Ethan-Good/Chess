@@ -1,4 +1,3 @@
-import chess.*;
 import ui.REPL;
 
 public class Main {

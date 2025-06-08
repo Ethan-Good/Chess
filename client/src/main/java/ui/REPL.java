@@ -9,12 +9,12 @@ public class REPL {
     private String authToken = null;
     private String username = null;
     private final PreLoginUI preloginUI;
-    private final PostloginUI postloginUI;
+    private final PostLoginUI postloginUI;
 
     public REPL() {
         this.facade = new ServerFacade(8080);
         this.preloginUI = new PreLoginUI(scanner, facade, this);
-        this.postloginUI = new PostloginUI(scanner, facade, this);
+        this.postloginUI = new PostLoginUI(scanner, facade, this);
     }
 
     public void run() {
