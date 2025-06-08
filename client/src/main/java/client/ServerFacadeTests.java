@@ -67,6 +67,74 @@ public class ServerFacadeTests {
     }
 
 
-    
+    @Test
+    public void createGamePositive() throws ResponseException {
+        var auth = facade.register(new RegisterRequest("user", "pass", "email"));
+        var result = facade.createGame(new CreateGameRequest("My Game"), auth.authToken());
+        assertTrue(result.gameID() > 0);
+    }
+
+    @Test
+    public void createGameNegative() {
+        var request = new CreateGameRequest("Bad Game");
+        ResponseException ex = assertThrows(ResponseException.class, () -> facade.createGame(request, "invalidToken"));
+        assertEquals(401, ex.getStatusCode());
+    }
+
+    @Test
+    public void listGamesPositive() throws ResponseException {
+        var auth = facade.register(new RegisterRequest("user", "pass", "email"));
+        facade.createGame(new CreateGameRequest("Game 1"), auth.authToken());
+        facade.createGame(new CreateGameRequest("Game 2"), auth.authToken());
+
+        List<ListGamesResult.Game> games = facade.listGames(auth.authToken());
+        assertEquals(2, games.size());
+        assertEquals("Game 1", games.get(0).gameName());
+        assertEquals("Game 2", games.get(1).gameName());
+    }
+
+    @Test
+    public void listGamesNegative() {
+        ResponseException ex = assertThrows(ResponseException.class, () -> facade.listGames("badToken"));
+        assertEquals(401, ex.getStatusCode());
+    }
+
+    @Test
+    public void logoutPositve() throws ResponseException {
+        var auth = facade.register(new RegisterRequest("user", "pass", "email"));
+        facade.logout(auth.authToken());
+        ResponseException ex = assertThrows(ResponseException.class, () -> facade.listGames(auth.authToken()));
+        assertEquals(401, ex.getStatusCode());
+    }
+
+    @Test
+    public void logoutNegative() {
+        ResponseException ex = assertThrows(ResponseException.class, () -> facade.logout("badToken"));
+        assertEquals(401, ex.getStatusCode());
+    }
+
+    @Test
+    public void joinGamePositive() throws ResponseException {
+        var auth = facade.register(new RegisterRequest("user", "pass", "email"));
+        var game = facade.createGame(new CreateGameRequest("My Game"), auth.authToken());
+
+        var request = new JoinGameRequest(ChessGame.TeamColor.WHITE, game.gameID());
+        facade.joinGame(request, auth.authToken());
+    }
+
+    @Test
+    public void joinGameNegative() throws ResponseException {
+        var auth = facade.register(new RegisterRequest("user", "pass", "email"));
+        var request = new JoinGameRequest(ChessGame.TeamColor.BLACK, 99999);
+        ResponseException ex = assertThrows(ResponseException.class, () -> facade.joinGame(request, auth.authToken()));
+        assertEquals(400, ex.getStatusCode());
+    }
+
+    @Test
+    public void joinGameInvalidToken() {
+        var request = new JoinGameRequest(ChessGame.TeamColor.WHITE, 1);
+        ResponseException ex = assertThrows(ResponseException.class, () -> facade.joinGame(request, "invalidToken"));
+        assertEquals(401, ex.getStatusCode());
+    }
 }
 
