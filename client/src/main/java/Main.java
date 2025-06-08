@@ -1,7 +1,8 @@
 import chess.*;
+import ui.REPL;
 
 public class Main {
     public static void main(String[] args) {
-        new ClientController().run();
+        new REPL().run();
     }
 }

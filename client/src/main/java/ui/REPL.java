@@ -8,17 +8,17 @@ public class REPL {
     private final ServerFacade facade;
     private String authToken = null;
     private String username = null;
-    private final PreloginUI preloginUI;
+    private final PreLoginUI preloginUI;
     private final PostloginUI postloginUI;
 
     public REPL() {
         this.facade = new ServerFacade(8080);
-        this.preloginUI = new PreloginUI(scanner, facade, this);
+        this.preloginUI = new PreLoginUI(scanner, facade, this);
         this.postloginUI = new PostloginUI(scanner, facade, this);
     }
 
     public void run() {
-        System.out.println("\u2655 Welcome to 240 Chess Client!");
+        System.out.println("Welcome to My cs240 Chess Client!");
         while (true) {
             if (authToken == null) {
                 preloginUI.prompt();
