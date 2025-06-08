@@ -17,6 +17,10 @@ public class ServerFacade {
         this.serverUrl = "http://localhost:" + port;
     }
 
+    public void clear() throws ResponseException {
+        doDelete("/db", null);
+    }
+
     public RegisterResult register(RegisterRequest request) throws ResponseException {
         String json = gson.toJson(request);
         String response = doPost("/user", json, null);
