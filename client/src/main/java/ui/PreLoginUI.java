@@ -17,6 +17,7 @@ public class PreLoginUI {
     }
 
     public void prompt() {
+        System.out.println("type help for options");
         System.out.print("[LOGGED OUT] >>> ");
         String input = scanner.nextLine().trim().toLowerCase();
         switch (input) {
@@ -31,10 +32,10 @@ public class PreLoginUI {
     private void printHelp() {
         System.out.println("""
             Commands:
-            - help : Lists available options
-            - quit : Exits the program
-            - register : Registers a new user
-            - login : Login as an existing user
+            - help: Lists available options
+            - quit: Exits the program
+            - register: Registers a new user
+            - login: Login as an existing user
         """);
     }
 
@@ -54,7 +55,7 @@ public class PreLoginUI {
         try {
             RegisterResult result = facade.register(new RegisterRequest(user, pass, email));
             controller.setAuth(result.authToken(), result.username());
-            System.out.println("Registered and logged in as " + result.username());
+            System.out.println("Registered as " + result.username());
         } catch (Exception e) {
             System.out.println("Registration failed: " + e.getMessage());
         }
