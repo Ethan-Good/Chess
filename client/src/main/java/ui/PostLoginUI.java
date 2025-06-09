@@ -142,6 +142,12 @@ public class PostLoginUI {
             System.out.println("Invalid color.");
             return;
         }
+
+        if (number < 1 || number > cachedGames.size()) {
+            System.out.println("Invalid game number.");
+            return;
+        }
+
         try {
             System.out.println("Observing game. Drawing board from white's perspective");
             ChessGame game = new ChessGame();
