@@ -3,6 +3,7 @@ package ui;
 import client.ServerFacade;
 import model.Request.*;
 import model.Result.*;
+import chess.*;
 
 import java.util.*;
 
@@ -85,6 +86,12 @@ public class PostLoginUI {
         int number = Integer.parseInt(scanner.nextLine());
         System.out.print("Color (white/black): ");
         String color = scanner.nextLine().toLowerCase();
+        ChessGame.TeamColor chessColor = parseTeamColor(color);
+
+        if (chessColor == null) {
+            System.out.println("Invalid color.");
+            return;
+        }
 
         if (number < 1 || number > cachedGames.size()) {
             System.out.println("Invalid game number.");
@@ -93,7 +100,7 @@ public class PostLoginUI {
 
         int gameID = cachedGames.get(number - 1).gameID();
         try {
-            facade.joinGame(new JoinGameRequest(color, gameID), controller.getAuthToken());
+            facade.joinGame(new JoinGameRequest(chessColor, gameID), controller.getAuthToken());
             System.out.println("Joined game as " + color + ". Drawing board...");
             drawBoard(color);
         } catch (Exception e) {
@@ -118,6 +125,16 @@ public class PostLoginUI {
             drawBoard("white");
         } catch (Exception e) {
             System.out.println("Failed to observe game: " + e.getMessage());
+        }
+    }
+
+    private ChessGame.TeamColor parseTeamColor(String input) {
+        if (input.equalsIgnoreCase("white")) {
+            return ChessGame.TeamColor.WHITE;
+        } else if (input.equalsIgnoreCase("black")) {
+            return ChessGame.TeamColor.BLACK;
+        } else {
+            return null;
         }
     }
 }
