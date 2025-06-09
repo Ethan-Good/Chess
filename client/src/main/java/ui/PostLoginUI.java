@@ -79,5 +79,45 @@ public class PostLoginUI {
         }
     }
 
-    
+    private void doPlayGame() {
+        doListGames();
+        System.out.print("Enter game number: ");
+        int number = Integer.parseInt(scanner.nextLine());
+        System.out.print("Color (white/black): ");
+        String color = scanner.nextLine().toLowerCase();
+
+        if (number < 1 || number > cachedGames.size()) {
+            System.out.println("Invalid game number.");
+            return;
+        }
+
+        int gameID = cachedGames.get(number - 1).gameID();
+        try {
+            facade.joinGame(new JoinGameRequest(color, gameID), controller.getAuthToken());
+            System.out.println("Joined game as " + color + ". Drawing board...");
+            drawBoard(color);
+        } catch (Exception e) {
+            System.out.println("Failed to join game: " + e.getMessage());
+        }
+    }
+
+    private void doObserveGame() {
+        doListGames();
+        System.out.print("Enter game number: ");
+        int number = Integer.parseInt(scanner.nextLine());
+
+        if (number < 1 || number > cachedGames.size()) {
+            System.out.println("Invalid game number.");
+            return;
+        }
+
+        int gameID = cachedGames.get(number - 1).gameID();
+        try {
+            facade.joinGame(new JoinGameRequest(null, gameID), controller.getAuthToken());
+            System.out.println("Observing game. Drawing board from white's perspective...");
+            drawBoard("white");
+        } catch (Exception e) {
+            System.out.println("Failed to observe game: " + e.getMessage());
+        }
+    }
 }
