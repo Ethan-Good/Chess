@@ -19,6 +19,7 @@ public class REPL {
 
     public void run() {
         System.out.println("Welcome to My cs240 Chess Client!");
+        System.out.println("Type help for options");
         while (true) {
             if (authToken == null) {
                 preloginUI.prompt();

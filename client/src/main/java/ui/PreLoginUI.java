@@ -17,7 +17,6 @@ public class PreLoginUI {
     }
 
     public void prompt() {
-        System.out.println("type help for options");
         System.out.print("[LOGGED OUT] >>> ");
         String input = scanner.nextLine().trim().toLowerCase();
         switch (input) {

@@ -26,10 +26,10 @@ public class PostLoginUI {
         switch (input) {
             case "help" -> printHelp();
             case "logout" -> doLogout();
-            case "create game" -> doCreateGame();
-            case "list games" -> doListGames();
-            case "play game" -> doPlayGame();
-            case "observe game" -> doObserveGame();
+            case "create" -> doCreateGame();
+            case "list" -> doListGames();
+            case "join" -> doPlayGame();
+            case "watch" -> doObserveGame();
             default -> System.out.println("Given command isn't known. Type 'help' to list available options.");
         }
     }
@@ -37,12 +37,12 @@ public class PostLoginUI {
     private void printHelp() {
         System.out.println("""
                     Commands:
-                    - help : Lists available options
-                    - logout : Logs you out of the current account
-                    - create game : Create a new chess game
-                    - list games : List all current games
-                    - play game : Join a game to play
-                    - observe game : Join a game as an observer
+                    - help: Lists available options
+                    - logout: Logs you out of the current account
+                    - create: Create a new chess game
+                    - list: List all current games
+                    - join: Join a game to play
+                    - watch: Join a game to watch
                 """);
     }
 
@@ -61,7 +61,7 @@ public class PostLoginUI {
         String name = scanner.nextLine();
         try {
             CreateGameResult result = facade.createGame(new CreateGameRequest(name), controller.getAuthToken());
-            System.out.println("Created game with ID: " + result.gameID());
+            System.out.println("Created game");
         } catch (Exception e) {
             System.out.println("Game creation failed: " + e.getMessage());
         }
@@ -72,7 +72,7 @@ public class PostLoginUI {
             cachedGames = facade.listGames(controller.getAuthToken());
             for (int i = 0; i < cachedGames.size(); i++) {
                 var game = cachedGames.get(i);
-                System.out.printf("%d. %s | White: %s | Black: %s%n", (i + 1), game.gameName(),
+                System.out.printf("%d. Game Name: %s   White: %s   Black: %s%n", (i + 1), game.gameName(),
                         game.whiteUsername(), game.blackUsername());
             }
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public class PostLoginUI {
         int gameID = cachedGames.get(number - 1).gameID();
         try {
             facade.joinGame(new JoinGameRequest(chessColor, gameID), controller.getAuthToken());
-            System.out.println("Joined game as " + color + ". Drawing board...");
+            System.out.println("Joined game as " + color);
             ChessGame game = new ChessGame();
             ChessBoardPrinter printer = new ChessBoardPrinter();
             printer.drawBoard(game, chessColor);
@@ -123,7 +123,7 @@ public class PostLoginUI {
         int gameID = cachedGames.get(number - 1).gameID();
         try {
             facade.joinGame(new JoinGameRequest(null, gameID), controller.getAuthToken());
-            System.out.println("Observing game. Drawing board from white's perspective...");
+            System.out.println("Observing game. Drawing board from white's perspective");
             ChessGame game = new ChessGame();
             ChessBoardPrinter printer = new ChessBoardPrinter();
             printer.drawBoard(game, ChessGame.TeamColor.WHITE);
