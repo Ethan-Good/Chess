@@ -102,7 +102,7 @@ public class PostLoginUI {
         try {
             facade.joinGame(new JoinGameRequest(chessColor, gameID), controller.getAuthToken());
             System.out.println("Joined game as " + color + ". Drawing board...");
-            drawBoard(color);
+            ChessBoardPrinter.drawBoard(chessColor);
         } catch (Exception e) {
             System.out.println("Failed to join game: " + e.getMessage());
         }
@@ -122,7 +122,7 @@ public class PostLoginUI {
         try {
             facade.joinGame(new JoinGameRequest(null, gameID), controller.getAuthToken());
             System.out.println("Observing game. Drawing board from white's perspective...");
-            drawBoard("white");
+            ChessBoardPrinter.drawBoard(ChessGame.TeamColor.WHITE);
         } catch (Exception e) {
             System.out.println("Failed to observe game: " + e.getMessage());
         }
