@@ -56,7 +56,7 @@ public class PreLoginUI {
             controller.setAuth(result.authToken(), result.username());
             System.out.println("Registered as " + result.username());
         } catch (Exception e) {
-            System.out.println("Registration failed: " + e.getMessage());
+            System.out.println("Registration failed: User already Taken");
         }
     }
 
@@ -71,7 +71,7 @@ public class PreLoginUI {
             controller.setAuth(result.authToken(), result.username());
             System.out.println("Logged in as " + result.username());
         } catch (Exception e) {
-            System.out.println("Login failed: " + e.getMessage());
+            System.out.println("Login failed: Incorrect Username or Password");
         }
     }
 }

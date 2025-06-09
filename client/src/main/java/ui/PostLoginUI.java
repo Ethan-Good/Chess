@@ -52,7 +52,7 @@ public class PostLoginUI {
             controller.clearAuth();
             System.out.println("Logged out.");
         } catch (Exception e) {
-            System.out.println("Logout failed: " + e.getMessage());
+            System.out.println("Logout failed");
         }
     }
 
@@ -63,27 +63,39 @@ public class PostLoginUI {
             CreateGameResult result = facade.createGame(new CreateGameRequest(name), controller.getAuthToken());
             System.out.println("Created game");
         } catch (Exception e) {
-            System.out.println("Game creation failed: " + e.getMessage());
+            System.out.println("Game creation failed");
         }
     }
 
     private void doListGames() {
         try {
             cachedGames = facade.listGames(controller.getAuthToken());
+            if (cachedGames.size() == 0) {
+                System.out.println("There are no games");
+            }
             for (int i = 0; i < cachedGames.size(); i++) {
                 var game = cachedGames.get(i);
-                System.out.printf("%d. Game Name: %s   White: %s   Black: %s%n", (i + 1), game.gameName(),
-                        game.whiteUsername(), game.blackUsername());
+                String white = (game.whiteUsername() != null) ? game.whiteUsername() : "EMPTY";
+                String black = (game.blackUsername() != null) ? game.blackUsername() : "EMPTY";
+                System.out.printf("%d. Game Name: %s   White: %s   Black: %s%n", (i + 1), game.gameName(), white, black);
             }
         } catch (Exception e) {
-            System.out.println("Failed to list games: " + e.getMessage());
+            System.out.println("Failed to list games");
         }
     }
 
     private void doPlayGame() {
         doListGames();
         System.out.print("Enter game number: ");
-        int number = Integer.parseInt(scanner.nextLine());
+        int number;
+
+        try {
+            number = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
+            return;
+        }
+
         System.out.print("Color (white/black): ");
         String color = scanner.nextLine().toLowerCase();
         ChessGame.TeamColor chessColor = parseTeamColor(color);
@@ -106,29 +118,37 @@ public class PostLoginUI {
             ChessBoardPrinter printer = new ChessBoardPrinter();
             printer.drawBoard(game, chessColor);
         } catch (Exception e) {
-            System.out.println("Failed to join game: " + e.getMessage());
+            System.out.println("Failed to join game: Already Taken");
         }
     }
 
     private void doObserveGame() {
         doListGames();
         System.out.print("Enter game number: ");
-        int number = Integer.parseInt(scanner.nextLine());
+        int number;
 
-        if (number < 1 || number > cachedGames.size()) {
-            System.out.println("Invalid game number.");
+        try {
+            number = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a number.");
             return;
         }
 
-        int gameID = cachedGames.get(number - 1).gameID();
+        System.out.print("Color (white/black): ");
+        String color = scanner.nextLine().toLowerCase();
+        ChessGame.TeamColor chessColor = parseTeamColor(color);
+
+        if (chessColor == null) {
+            System.out.println("Invalid color.");
+            return;
+        }
         try {
-            facade.joinGame(new JoinGameRequest(null, gameID), controller.getAuthToken());
             System.out.println("Observing game. Drawing board from white's perspective");
             ChessGame game = new ChessGame();
             ChessBoardPrinter printer = new ChessBoardPrinter();
-            printer.drawBoard(game, ChessGame.TeamColor.WHITE);
+            printer.drawBoard(game, chessColor);
         } catch (Exception e) {
-            System.out.println("Failed to observe game: " + e.getMessage());
+            System.out.println("Failed to observe game");
         }
     }
 

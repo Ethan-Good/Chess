@@ -3,8 +3,8 @@ package ui;
 import chess.*;
 
 public class ChessBoardPrinter {
-    private static final String LIGHT_SQUARE = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
-    private static final String DARK_SQUARE = EscapeSequences.SET_BG_COLOR_DARK_GREY;
+    private static final String LIGHT_SQUARE = EscapeSequences.SET_BG_COLOR_DARK_GREY;
+    private static final String DARK_SQUARE = EscapeSequences.SET_BG_COLOR_LIGHT_GREY;
     private static final String BORDER_COLOR = EscapeSequences.SET_TEXT_COLOR_BLUE;
     private static final String RESET = EscapeSequences.RESET_TEXT_COLOR + EscapeSequences.RESET_BG_COLOR;
 
@@ -55,7 +55,7 @@ public class ChessBoardPrinter {
 
     private void printAlternatingWidths(char file, boolean wide) {
         if (wide) {
-            System.out.print(" " + file + "  "); 
+            System.out.print(" " + file + "  ");
         } else {
             System.out.print(" " + file + " ");
         }
