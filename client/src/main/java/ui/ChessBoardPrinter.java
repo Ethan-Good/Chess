@@ -36,16 +36,29 @@ public class ChessBoardPrinter {
 
     private void printFileLabels(ChessGame.TeamColor perspective) {
         System.out.print(BORDER_COLOR + "   ");
+
+        boolean useFour = true;
         if (perspective == ChessGame.TeamColor.WHITE) {
             for (char file = 'a'; file <= 'h'; file++) {
-                System.out.print(" " + file + " ");
+                printAlternatingWidths(file, useFour);
+                useFour = !useFour;
             }
         } else {
             for (char file = 'h'; file >= 'a'; file--) {
-                System.out.print(" " + file + " ");
+                printAlternatingWidths(file, useFour);
+                useFour = !useFour;
             }
         }
+
         System.out.println(RESET);
+    }
+
+    private void printAlternatingWidths(char file, boolean wide) {
+        if (wide) {
+            System.out.print(" " + file + "  "); 
+        } else {
+            System.out.print(" " + file + " ");
+        }
     }
 
     private String getSymbol(ChessPiece piece) {
