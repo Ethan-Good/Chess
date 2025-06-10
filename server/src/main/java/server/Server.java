@@ -10,6 +10,7 @@ import spark.*;
 import service.ClearService;
 import dataaccess.*;
 import dataaccess.memory.*;
+import server.websocket.ChessWebSocketHandler;
 
 public class Server {
 
@@ -31,6 +32,8 @@ public class Server {
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
+
+        Spark.webSocket("/ws", ChessWebSocketHandler.class);
 
         Spark.delete("/db", new ClearHandler(clearService));
         Spark.post("/user", new RegisterHandler(userService));
