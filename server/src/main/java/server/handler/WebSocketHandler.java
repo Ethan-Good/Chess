@@ -74,7 +74,7 @@ public class WebSocketHandler {
             }
         }
     }
-    
+
     private static class UserSessionInfo {
         int gameID;
         String username;
