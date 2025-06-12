@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @WebSocket
 public class WebSocketHandler {
 
-    private final ChessGameCommunicator communicator = new ChessGameCommunicator();
+    private final WebsocketCommunicator communicator = new WebsocketCommunicator();
 
 
     private final Map<Session, UserSessionInfo> sessionInfoMap = new ConcurrentHashMap<>();
