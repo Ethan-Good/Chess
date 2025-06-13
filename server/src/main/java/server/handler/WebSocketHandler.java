@@ -175,4 +175,140 @@ public class WebSocketHandler {
         }
     }
 
+    private void handleLeave(Session session, UserGameCommand command) throws IOException {
+        String authToken = command.getAuthToken();
+        Integer gameID = command.getGameID();
+
+        if (authToken == null || gameID == null) {
+            sendError(session, "Error: Missing authToken or gameID for LEAVE");
+            return;
+        }
+
+        String username = authenticate(authToken);
+        if (username == null) {
+            sendError(session, "Error: Invalid authToken");
+            return;
+        }
+
+        Game game = GameManager.getGame(gameID);
+        if (game == null) {
+            sendError(session, "Error: Invalid gameID");
+            return;
+        }
+
+        game.removePlayerOrObserver(username);
+        GameManager.updateGame(game);
+
+        removeSessionFromGame(session, gameID);
+        sessionInfoMap.remove(session);
+
+        broadcastNotification(gameID, username + " left the game.");
+    }
+
+    private void handleResign(Session session, UserGameCommand command) throws IOException {
+        String authToken = command.getAuthToken();
+        Integer gameID = command.getGameID();
+
+        if (authToken == null || gameID == null) {
+            sendError(session, "Error: Missing authToken or gameID for RESIGN");
+            return;
+        }
+
+        String username = authenticate(authToken);
+        if (username == null) {
+            sendError(session, "Error: Invalid authToken");
+            return;
+        }
+
+        Game game = GameManager.getGame(gameID);
+        if (game == null) {
+            sendError(session, "Error: Invalid gameID");
+            return;
+        }
+
+        if (!game.isPlayer(username)) {
+            sendError(session, "Error: You are not a player in this game");
+            return;
+        }
+
+        game.resign(username);
+        GameManager.updateGame(game);
+
+        broadcastNotification(gameID, username + " resigned. Game over.");
+    }
+
+    private void sendMessage(Session session, String json) {
+        if (session != null && session.isOpen()) {
+            try {
+                session.getRemote().sendString(json);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void sendError(Session session, String errorMsg) {
+        ServerMessage error = ServerMessage.error(errorMsg);
+        sendMessage(session, gson.toJson(error));
+    }
+
+    private void broadcastNotification(int gameID, String message) {
+        ServerMessage notification = ServerMessage.notification(message);
+        broadcastToGame(gameID, gson.toJson(notification));
+    }
+
+    private void broadcastNotificationExcept(int gameID, String message, Session excludeSession) {
+        ServerMessage notification = ServerMessage.notification(message);
+        broadcastToGameExcept(gameID, gson.toJson(notification), excludeSession);
+    }
+
+    private void broadcastToGame(int gameID, String message) {
+        Set<Session> sessions = gameSessions.get(gameID);
+        if (sessions != null) {
+            for (Session s : sessions) {
+                sendMessage(s, message);
+            }
+        }
+    }
+
+    private void broadcastToGameExcept(int gameID, String message, Session excludeSession) {
+        Set<Session> sessions = gameSessions.get(gameID);
+        if (sessions != null) {
+            for (Session s : sessions) {
+                if (!s.equals(excludeSession)) {
+                    sendMessage(s, message);
+                }
+            }
+        }
+    }
+
+    private void addSessionToGame(Session session, int gameID) {
+        gameSessions.computeIfAbsent(gameID, k -> Collections.newSetFromMap(new ConcurrentHashMap<>())).add(session);
+    }
+
+    private void removeSessionFromGame(Session session, int gameID) {
+        Set<Session> sessions = gameSessions.get(gameID);
+        if (sessions != null) {
+            sessions.remove(session);
+            if (sessions.isEmpty()) {
+                gameSessions.remove(gameID);
+            }
+        }
+    }
+
+    private String authenticate(String authToken) {
+        // Implement authentication logic here,
+        // return username if valid, otherwise null
+        return authToken;
+    }
     
+    private static class UserSessionInfo {
+        final int gameID;
+        final String username;
+
+        UserSessionInfo(int gameID, String username) {
+            this.gameID = gameID;
+            this.username = username;
+        }
+    }
+}
