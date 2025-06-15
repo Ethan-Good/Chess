@@ -19,6 +19,10 @@ public class GameService extends BaseService {
         this.gameDAO = gameDAO;
     }
 
+    public GameDAO getGameDAO() {
+        return gameDAO;
+    }
+
     public CreateGameResult createGame(String authToken, CreateGameRequest request) throws DataAccessException, UnauthorizedException, BadRequestException {
         AuthData auth = authenticate(authToken);
 

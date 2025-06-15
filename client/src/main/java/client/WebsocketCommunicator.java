@@ -1,9 +1,10 @@
 package client;
 
-import org.eclipse.jetty.websocket.api.Session;
+import jakarta.websocket.Session;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WebsocketCommunicator {
@@ -36,9 +37,9 @@ public class WebsocketCommunicator {
             for (Session session : sessions) {
                 if (session.isOpen()) {
                     try {
-                        session.getRemote().sendString(message);
+                        session.getBasicRemote().sendText(message);
                     } catch (IOException e) {
-                        e.printStackTrace(); // Or log this
+                        e.printStackTrace(); // Consider proper logging
                     }
                 }
             }
@@ -48,11 +49,10 @@ public class WebsocketCommunicator {
     public void sendToSession(Session session, String message) {
         if (session != null && session.isOpen()) {
             try {
-                session.getRemote().sendString(message);
+                session.getBasicRemote().sendText(message);
             } catch (IOException e) {
-                e.printStackTrace(); // Or log this
+                e.printStackTrace(); // Consider proper logging
             }
         }
     }
 }
-
