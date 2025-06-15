@@ -35,6 +35,7 @@ public class WebsocketHandler {
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
         System.out.println("WebSocket closed: " + reason);
+        sessions.removeSessionFromAllGames(session);
     }
 
     @OnWebSocketMessage

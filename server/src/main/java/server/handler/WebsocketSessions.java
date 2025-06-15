@@ -22,6 +22,12 @@ public class WebsocketSessions {
         }
     }
 
+    public void removeSessionFromAllGames(Session session) {
+        for (var entry : gameSessions.entrySet()) {
+            removeSession(entry.getKey(), session);
+        }
+    }
+
     public void broadcast(int gameID, String message) {
         Set<Session> sessions = gameSessions.get(gameID);
         if (sessions != null) {
