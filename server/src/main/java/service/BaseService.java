@@ -12,7 +12,7 @@ public abstract class BaseService {
         this.authDAO = authDAO;
     }
 
-    protected AuthData authenticate(String authToken) throws UnauthorizedException, DataAccessException {
+    public AuthData authenticate(String authToken) throws UnauthorizedException, DataAccessException {
         AuthData auth = authDAO.getAuth(authToken);
         if (auth == null) {
             throw new UnauthorizedException("Error: unauthorized");

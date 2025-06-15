@@ -1,5 +1,6 @@
 package ui;
 
+import chess.InvalidMoveException;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import chess.ChessGame;
@@ -54,9 +55,10 @@ public class GameplayRepl {
                     return ServerMessage.error("You are not a player in this game");
                 }
 
-                boolean moveSuccess = chessGame.makeMove(command.getMove(), username);
-                if (!moveSuccess) {
-                    return ServerMessage.error("Invalid move");
+                try {
+                    chessGame.makeMove(command.getMove());
+                } catch (InvalidMoveException e) {
+                    return ServerMessage.error(e.getMessage());
                 }
 
                 gameService.getGameDAO().updateGame(new GameData(
@@ -79,7 +81,16 @@ public class GameplayRepl {
                     return ServerMessage.error("You are not a player in this game");
                 }
 
-                chessGame.resign(username);
+                TeamColor color;
+                if (username.equals(gameData.whiteUsername())) {
+                    color = TeamColor.WHITE;
+                } else if (username.equals(gameData.blackUsername())) {
+                    color = TeamColor.BLACK;
+                } else {
+                    return ServerMessage.error("You are not a player in this game");
+                }
+
+                chessGame.resign(color);
 
                 gameService.getGameDAO().updateGame(new GameData(
                         gameData.gameID(),

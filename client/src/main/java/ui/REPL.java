@@ -10,11 +10,13 @@ public class REPL {
     private String username = null;
     private final PreLoginUI preloginUI;
     private final PostLoginUI postloginUI;
+    private final GameplayRepl gameplayUI;
 
     public REPL() {
         this.facade = new ServerFacade(8080);
         this.preloginUI = new PreLoginUI(scanner, facade, this);
         this.postloginUI = new PostLoginUI(scanner, facade, this);
+        this.gameplayUI = new GameplayRepl(scanner, facade, this);
     }
 
     public void run() {
