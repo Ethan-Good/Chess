@@ -11,6 +11,11 @@ public class WebsocketCommunicator {
     private final Map<Integer, Set<Session>> gameSessions = new ConcurrentHashMap<>();
 
     private final Map<Session, Integer> sessionToGame = new ConcurrentHashMap<>();
+    private Session clientSession;
+
+    public void setClientSession(Session session) {
+        this.clientSession = session;
+    }
 
     public void addSessionToGame(int gameID, Session session) {
         gameSessions.computeIfAbsent(gameID, k -> ConcurrentHashMap.newKeySet()).add(session);
@@ -38,7 +43,7 @@ public class WebsocketCommunicator {
                     try {
                         session.getBasicRemote().sendText(message);
                     } catch (IOException e) {
-                        e.printStackTrace(); // Consider proper logging
+                        e.printStackTrace();
                     }
                 }
             }
@@ -50,7 +55,16 @@ public class WebsocketCommunicator {
             try {
                 session.getBasicRemote().sendText(message);
             } catch (IOException e) {
-                e.printStackTrace(); // Consider proper logging
+                e.printStackTrace();
+            }
+        }
+    }
+    public void sendMessageToServer(String message) {
+        if (clientSession != null && clientSession.isOpen()) {
+            try {
+                clientSession.getBasicRemote().sendText(message);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

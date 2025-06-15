@@ -25,10 +25,7 @@ public class UserGameCommand {
         CONNECT,
         MAKE_MOVE,
         LEAVE,
-        RESIGN,
-        HELP,
-        REDRAW,
-        HIGHLIGHT
+        RESIGN
     }
 
     public CommandType getCommandType() {

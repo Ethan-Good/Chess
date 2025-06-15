@@ -7,6 +7,8 @@ import dataaccess.SQL.SQLAuthDAO;
 import dataaccess.SQL.SQLGameDAO;
 import service.GameService;
 
+import javax.websocket.*;
+import java.net.URI;
 import java.util.Scanner;
 
 public class REPL {
@@ -19,6 +21,7 @@ public class REPL {
     private final PreLoginUI preloginUI;
     private final PostLoginUI postloginUI;
     final GameplayRepl gameplayUI;
+    private Session clientSession;
 
     public REPL() {
         this.facade = new ServerFacade(8080);
@@ -40,8 +43,52 @@ public class REPL {
             if (authToken == null) {
                 preloginUI.prompt();
             } else {
+                // Connect WebSocket once after login (only once)
+                if (clientSession == null || !clientSession.isOpen()) {
+                    connectWebSocket();
+                }
                 postloginUI.prompt();
             }
+        }
+    }
+
+    private void connectWebSocket() {
+        try {
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            URI uri = new URI("ws://localhost:8080/gameplay"); // Adjust URI to your server
+
+            // Create your endpoint with a handler to set session in communicator
+            Endpoint endpoint = new Endpoint() {
+                @Override
+                public void onOpen(Session session, EndpointConfig config) {
+                    System.out.println("WebSocket connected");
+                    clientSession = session;
+                    communicator.setClientSession(session);
+
+                    session.addMessageHandler(String.class, message -> {
+                        // Handle messages from server here (e.g., update UI)
+                        System.out.println("[Server] " + message);
+                        // Optionally forward to GameplayRepl or other UI classes
+                    });
+                }
+
+                @Override
+                public void onClose(Session session, CloseReason closeReason) {
+                    System.out.println("WebSocket disconnected: " + closeReason);
+                    clientSession = null;
+                    communicator.setClientSession(null);
+                }
+
+                @Override
+                public void onError(Session session, Throwable thr) {
+                    System.err.println("WebSocket error: " + thr.getMessage());
+                }
+            };
+
+            container.connectToServer(endpoint, uri);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed to connect WebSocket.");
         }
     }
 
