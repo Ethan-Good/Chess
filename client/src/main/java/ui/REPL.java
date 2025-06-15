@@ -1,22 +1,36 @@
 package ui;
 
 import client.*;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.SQL.SQLAuthDAO;
+import dataaccess.SQL.SQLGameDAO;
+import service.GameService;
+
 import java.util.Scanner;
 
 public class REPL {
     private final Scanner scanner = new Scanner(System.in);
     private final ServerFacade facade;
+    private final GameService gameService;
+    private final WebsocketCommunicator communicator;
     private String authToken = null;
     private String username = null;
     private final PreLoginUI preloginUI;
     private final PostLoginUI postloginUI;
-    private final GameplayRepl gameplayUI;
+    final GameplayRepl gameplayUI;
 
     public REPL() {
         this.facade = new ServerFacade(8080);
+
+        GameDAO gameDAO = new SQLGameDAO();
+        AuthDAO authDAO = new SQLAuthDAO();
+        this.gameService = new GameService(gameDAO, authDAO);
+
+        this.communicator = new WebsocketCommunicator();
         this.preloginUI = new PreLoginUI(scanner, facade, this);
         this.postloginUI = new PostLoginUI(scanner, facade, this);
-        this.gameplayUI = new GameplayRepl(scanner, facade, this);
+        this.gameplayUI = new GameplayRepl(scanner, facade, gameService, communicator);
     }
 
     public void run() {

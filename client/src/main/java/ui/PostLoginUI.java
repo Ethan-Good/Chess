@@ -117,6 +117,7 @@ public class PostLoginUI {
             ChessGame game = new ChessGame();
             ChessBoardPrinter printer = new ChessBoardPrinter();
             printer.drawBoard(game, chessColor);
+            controller.gameplayUI.run(gameID, chessColor);
         } catch (Exception e) {
             System.out.println("Failed to join game: Already Taken");
         }

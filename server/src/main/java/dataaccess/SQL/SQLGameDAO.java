@@ -120,4 +120,18 @@ public class SQLGameDAO implements GameDAO {
             throw new DataAccessException("Error updating game", e);
         }
     }
+
+    @Override
+    public void deleteGame(int gameID) throws DataAccessException {
+        String sql = "DELETE FROM game WHERE gameID = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, gameID);
+            if (stmt.executeUpdate() == 0) {
+                throw new DataAccessException("Game not found to delete.");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error deleting game", e);
+        }
+    }
 }

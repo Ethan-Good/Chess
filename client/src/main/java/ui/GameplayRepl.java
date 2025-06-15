@@ -1,132 +1,198 @@
 package ui;
 
-import chess.InvalidMoveException;
-import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
-import chess.ChessGame;
-import chess.ChessGame.TeamColor;
+import chess.*;
+import client.ServerFacade;
+import client.WebsocketCommunicator;
+import dataaccess.DataAccessException;
 import model.GameData;
 import service.GameService;
-import client.WebsocketCommunicator;
 
-import javax.websocket.Session;
+import java.util.Collection;
+import java.util.List;
+import java.util.Scanner;
 
 public class GameplayRepl {
-
+    private final Scanner scanner;
+    private final ServerFacade facade;
     private final GameService gameService;
     private final WebsocketCommunicator communicator;
 
-    public GameplayRepl(GameService gameService, WebsocketCommunicator communicator) {
+    private int currentGameID = -1;
+    private ChessGame.TeamColor playerColor;
+    private ChessGame currentGame;
+
+    public GameplayRepl(Scanner scanner, ServerFacade facade, GameService gameService, WebsocketCommunicator communicator) {
+        this.scanner = scanner;
+        this.facade = facade;
         this.gameService = gameService;
         this.communicator = communicator;
     }
 
-    /**
-     * Process a UserGameCommand from a client.
-     * @param command the user command to process
-     * @param session the websocket session of the user sending the command
-     * @return ServerMessage to send back to the user session
-     * @throws Exception on auth or data errors
-     */
-    public ServerMessage processCommand(UserGameCommand command, Session session) throws Exception {
-        String authToken = command.getAuthToken();
-        var auth = gameService.authenticate(authToken);
-        String username = auth.username();
+    public void run(int gameID, ChessGame.TeamColor color) throws DataAccessException {
+        this.currentGameID = gameID;
+        this.playerColor = color;
 
-        int gameID = command.getGameID();
         GameData gameData = gameService.getGameDAO().getGame(gameID);
         if (gameData == null) {
-            return ServerMessage.error("Game not found");
+            System.out.println("Error: Game not found");
+            return;
         }
-        ChessGame chessGame = gameData.game();
 
-        switch (command.getCommandType()) {
-            case CONNECT:
-                communicator.addSessionToGame(gameID, session);
-                return ServerMessage.loadGame(gameData);
+        this.currentGame = gameData.game();
+        System.out.println("Joined game ID: " + gameID + " as " + color);
+        printHelp();
+        printBoard();
 
-            case MAKE_MOVE:
-                if (command.getMove() == null) {
-                    return ServerMessage.error("No move provided");
+        boolean running = true;
+        while (running) {
+            System.out.print("[GAMEPLAY] >>> ");
+            String input = scanner.nextLine().trim().toLowerCase();
+
+            switch (input) {
+                case "help" -> printHelp();
+                case "redraw" -> printBoard();
+                case "leave" -> {
+                    System.out.println("Leaving game...");
+                    running = false;
                 }
-
-                boolean isPlayer = username.equals(gameData.whiteUsername()) || username.equals(gameData.blackUsername());
-                if (!isPlayer) {
-                    return ServerMessage.error("You are not a player in this game");
+                case "resign" -> {
+                    boolean shouldExit = doResign();
+                    if (shouldExit) running = false;
                 }
-
-                try {
-                    chessGame.makeMove(command.getMove());
-                } catch (InvalidMoveException e) {
-                    return ServerMessage.error(e.getMessage());
-                }
-
-                gameService.getGameDAO().updateGame(new GameData(
-                        gameData.gameID(),
-                        gameData.whiteUsername(),
-                        gameData.blackUsername(),
-                        gameData.gameName(),
-                        chessGame));
-
-                ServerMessage updateMsg = ServerMessage.loadGame(gameData);
-                communicator.broadcastToGame(gameID, serializeMessage(updateMsg));
-                return updateMsg;
-
-            case LEAVE:
-                communicator.removeSession(session);
-                return ServerMessage.notification("You left the game");
-
-            case RESIGN:
-                if (!username.equals(gameData.whiteUsername()) && !username.equals(gameData.blackUsername())) {
-                    return ServerMessage.error("You are not a player in this game");
-                }
-
-                TeamColor color;
-                if (username.equals(gameData.whiteUsername())) {
-                    color = TeamColor.WHITE;
-                } else if (username.equals(gameData.blackUsername())) {
-                    color = TeamColor.BLACK;
-                } else {
-                    return ServerMessage.error("You are not a player in this game");
-                }
-
-                chessGame.resign(color);
-
-                gameService.getGameDAO().updateGame(new GameData(
-                        gameData.gameID(),
-                        gameData.whiteUsername(),
-                        gameData.blackUsername(),
-                        gameData.gameName(),
-                        chessGame));
-
-                ServerMessage resignMsg = ServerMessage.notification(username + " resigned. Game over.");
-                communicator.broadcastToGame(gameID, serializeMessage(resignMsg));
-                return resignMsg;
-
-            case HELP:
-                String helpText = """
-                    Commands:
-                    - Help: Show this help message
-                    - Redraw: Redraw the chess board
-                    - Leave: Leave the game and return to main menu
-                    - Move: Make a move (send move data)
-                    - Resign: Resign from the game
-                    - Highlight: Highlight legal moves for a piece (client-only)
-                    """;
-                return ServerMessage.notification(helpText);
-
-            case REDRAW:
-                return ServerMessage.loadGame(gameData);
-
-            case HIGHLIGHT:
-                return ServerMessage.notification("Highlight legal moves (client-only)");
-
-            default:
-                return ServerMessage.error("Unknown command");
+                case "move" -> doMove();
+                case "highlight" -> doHighlight();
+                default -> System.out.println("Unknown command. Type 'help' for list.");
+            }
         }
     }
 
-    private String serializeMessage(ServerMessage msg) {
-        return new com.google.gson.Gson().toJson(msg);
+    private void printHelp() {
+        System.out.println("""
+            Commands:
+            - help: Display this help menu
+            - redraw: Redraw the chess board
+            - leave: Leave the game (return to main menu)
+            - move: Make a move (e.g. 'e2 e4')
+            - resign: Forfeit the game (requires confirmation)
+            - highlight: Highlight legal moves for a piece
+            """);
+    }
+
+    private void printBoard() {
+        ChessBoardPrinter printer = new ChessBoardPrinter();
+        printer.drawBoard(currentGame, playerColor);
+    }
+
+    private boolean doResign() {
+        System.out.print("Are you sure you want to resign? (yes/no): ");
+        String confirm = scanner.nextLine().trim().toLowerCase();
+        if (!confirm.equals("yes")) {
+            System.out.println("Resignation canceled.");
+            return false;
+        }
+
+        try {
+            currentGame.resign(playerColor);
+            GameData oldGameData = gameService.getGameDAO().getGame(currentGameID);
+
+            GameData updatedGameData = new GameData(
+                    oldGameData.gameID(),
+                    oldGameData.whiteUsername(),
+                    oldGameData.blackUsername(),
+                    oldGameData.gameName(),
+                    currentGame);
+
+            gameService.getGameDAO().updateGame(updatedGameData);
+
+            gameService.getGameDAO().deleteGame(currentGameID);
+
+            System.out.println("You resigned. Game over.");
+            return true;  // Indicate gameplay should exit
+        } catch (Exception e) {
+            System.out.println("Error resigning: " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    private void doMove() {
+        System.out.print("Enter move (e.g. e2 e4): ");
+        String input = scanner.nextLine().trim().toLowerCase();
+        String[] parts = input.split("\\s+");
+
+        if (parts.length != 2 || parts[0].length() != 2 || parts[1].length() != 2) {
+            System.out.println("Invalid input format. Use 'e2 e4'.");
+            return;
+        }
+
+        try {
+            ChessPosition from = parsePosition(parts[0]);
+            ChessPosition to = parsePosition(parts[1]);
+
+            ChessPiece.PieceType promotion = null;
+            ChessPiece piece = currentGame.getBoard().getPiece(from);
+            if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN
+                    && (to.getRow() == 1 || to.getRow() == 8)) {
+                promotion = ChessPiece.PieceType.QUEEN; // auto promote to queen for now
+            }
+
+            ChessMove move = new ChessMove(from, to, promotion);
+
+            currentGame.makeMove(move);
+
+            GameData oldGameData = gameService.getGameDAO().getGame(currentGameID);
+
+            gameService.getGameDAO().updateGame(new GameData(
+                    oldGameData.gameID(),
+                    oldGameData.whiteUsername(),
+                    oldGameData.blackUsername(),
+                    oldGameData.gameName(),
+                    currentGame));
+
+            System.out.println("Move made.");
+            printBoard();
+
+        } catch (InvalidMoveException e) {
+            System.out.println("Invalid move: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+
+    private void doHighlight() {
+        System.out.print("Enter position (e.g. e2): ");
+        String input = scanner.nextLine().trim().toLowerCase();
+        if (input.length() != 2) {
+            System.out.println("Invalid position.");
+            return;
+        }
+
+        try {
+            ChessPosition pos = parsePosition(input);
+            ChessPiece piece = currentGame.getBoard().getPiece(pos);
+
+            if (piece == null) {
+                System.out.println("No piece at that position.");
+                return;
+            }
+
+            Collection<ChessMove> legalMoves = currentGame.validMoves(pos);
+            ChessBoardPrinter printer = new ChessBoardPrinter();
+
+            Collection<ChessPosition> highlights = legalMoves.stream()
+                    .map(ChessMove::getEndPosition)
+                    .toList();
+
+            printer.drawHighlightedBoard(currentGame, playerColor, highlights);
+        } catch (Exception e) {
+            System.out.println("Error highlighting: " + e.getMessage());
+        }
+    }
+
+    private ChessPosition parsePosition(String algebraic) {
+        int col = algebraic.charAt(0) - 'a' + 1;
+        int row = Character.getNumericValue(algebraic.charAt(1));
+        return new ChessPosition(row, col);
     }
 }
