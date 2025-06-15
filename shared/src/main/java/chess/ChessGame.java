@@ -18,9 +18,21 @@ public class ChessGame {
     private boolean whiteQueenRookMoved = false;
     private boolean blackKingRookMoved = false;
     private boolean blackQueenRookMoved = false;
+    private boolean gameOver = false;
+    private TeamColor winner = null;
+    private boolean resigned = false;
 
     public ChessGame() {
         board.resetBoard();
+    }
+
+    public void resign(TeamColor color) throws InvalidMoveException {
+        if (gameOver) {
+            throw new InvalidMoveException("Game is already over.");
+        }
+        this.gameOver = true;
+        this.resigned = true;
+        this.winner = (color == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     public boolean hasWhiteKingMoved() {
@@ -169,6 +181,10 @@ public class ChessGame {
         if (throwException) {
 
             throw new InvalidMoveException("Not a valid move");
+        }
+
+        if (gameOver) {
+            throw new InvalidMoveException("Game is over. No more moves allowed.");
         }
 
         //execute move

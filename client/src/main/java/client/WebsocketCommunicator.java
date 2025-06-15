@@ -1,7 +1,6 @@
 package client;
 
-import jakarta.websocket.Session;
-
+import javax.websocket.*;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;

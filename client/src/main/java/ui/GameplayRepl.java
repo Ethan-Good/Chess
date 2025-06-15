@@ -8,6 +8,8 @@ import model.GameData;
 import service.GameService;
 import client.WebsocketCommunicator;
 
+import javax.websocket.Session;
+
 public class GameplayRepl {
 
     private final GameService gameService;
