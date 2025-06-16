@@ -61,6 +61,10 @@ public class ChessGame {
         return turn;
     }
 
+    public void setGameOver(boolean isOver) {
+        this.gameOver = isOver;
+    }
+
     /**
      * Set's which teams turn it is
      *
@@ -68,6 +72,15 @@ public class ChessGame {
      */
     public void setTeamTurn(TeamColor team) {
         turn = team;
+    }
+
+    public boolean isGameOver() {
+        if (gameOver) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**

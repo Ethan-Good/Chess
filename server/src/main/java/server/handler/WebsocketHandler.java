@@ -74,10 +74,26 @@ public class WebsocketHandler {
                 }
 
                 case MAKE_MOVE -> {
-                    ChessMove move = command.getMove();
                     GameData game = gameService.getGameDAO().getGame(gameID);
                     ChessGame chessGame = game.game();
+
+                    if (chessGame.isGameOver()) {
+                        sessions.broadcast(gameID, gson.toJson(ServerMessage.error("Game is over. No more moves are allowed.")));
+                        return;
+                    }
+
+                    ChessMove move = command.getMove();
                     chessGame.makeMove(move);
+
+                    ChessGame.TeamColor opponentColor = chessGame.getTeamTurn();
+                    String opponentUsername = (opponentColor == ChessGame.TeamColor.WHITE) ? game.whiteUsername() : game.blackUsername();
+
+                    if (chessGame.isInCheckmate(opponentColor)) {
+                        chessGame.setGameOver(true);
+                        sessions.broadcast(gameID, gson.toJson(ServerMessage.notification("Checkmate! " + opponentUsername + " loses.")));
+                    } else if (chessGame.isInCheck(opponentColor)) {
+                        sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(opponentUsername + " is in check.")));
+                    }
 
                     GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), chessGame);
                     gameService.getGameDAO().updateGame(updatedGame);
@@ -85,24 +101,46 @@ public class WebsocketHandler {
                     sessions.broadcast(gameID, gson.toJson(ServerMessage.loadGame(updatedGame)));
                     String moveString = formatPosition(move.getStartPosition()) + " " + formatPosition(move.getEndPosition());
                     sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(username + " moved " + moveString)));
-
-                    ChessGame.TeamColor opponentColor = chessGame.getTeamTurn();
-
-                    String opponentUsername = (opponentColor == ChessGame.TeamColor.WHITE) ? game.whiteUsername() : game.blackUsername();
-
-                    if (chessGame.isInCheckmate(opponentColor)) {
-                        sessions.broadcast(gameID, gson.toJson(ServerMessage.notification("Checkmate! " + opponentUsername + " loses.")));
-                    } else if (chessGame.isInCheck(opponentColor)) {
-                        sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(opponentUsername + " is in check.")));
-                    }
                 }
 
+
                 case RESIGN -> {
+                    GameData game = gameService.getGameDAO().getGame(gameID);
+                    ChessGame chessGame = game.game();
+                    chessGame.setGameOver(true);
+
+                    GameData updatedGame = new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), chessGame);
+                    gameService.getGameDAO().updateGame(updatedGame);
+
                     sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(username + " has resigned.")));
                 }
 
                 case LEAVE -> {
                     sessions.removeSession(gameID, session);
+
+                    GameData game = gameService.getGameDAO().getGame(gameID);
+                    if (game != null) {
+                        ChessGame chessGame = game.game();
+
+                        String white = game.whiteUsername();
+                        String black = game.blackUsername();
+
+                        if (username.equals(white)) {
+                            white = null;
+                        } else if (username.equals(black)) {
+                            black = null;
+                        }
+
+                        GameData updatedGame = new GameData(
+                                game.gameID(),
+                                white,
+                                black,
+                                game.gameName(),
+                                chessGame
+                        );
+                        gameService.getGameDAO().updateGame(updatedGame);
+                    }
+
                     sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(username + " has left the game")));
                 }
             }

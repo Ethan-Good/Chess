@@ -43,7 +43,6 @@ public class GameplayRepl {
         }
 
         this.currentGame = gameData.game();
-        printHelp();
 
         boolean running = true;
         while (running) {
@@ -58,13 +57,10 @@ public class GameplayRepl {
                     System.out.println("Leaving game...");
                     running = false;
                 }
-                case "resign" -> {
-                    boolean shouldExit = doResign();
-                    if (shouldExit) running = false;
-                }
+                case "resign" -> doResign();
                 case "move" -> doMove();
                 case "highlight" -> doHighlight();
-                default -> System.out.println("Unknown command. Type 'help' for list.");
+                default -> System.out.println("Unknown command. Type 'help' for commands");
             }
             if (running) {
                 System.out.println();
@@ -75,11 +71,11 @@ public class GameplayRepl {
     private void printHelp() {
         System.out.println("""
             Commands:
-            - help: Display this help menu
+            - help: Lists available options
             - redraw: Redraw the chess board
-            - leave: Leave the game (return to main menu)
-            - move: Make a move (e.g. 'e2 e4')
-            - resign: Forfeit the game (requires confirmation)
+            - leave: Leave the game
+            - move: Make a move
+            - resign: Forfeit the game
             - highlight: Highlight legal moves for a piece
             """);
     }
@@ -92,33 +88,30 @@ public class GameplayRepl {
         this.currentGame = newGame;
     }
 
-    private boolean doResign() {
-        System.out.print("Are you sure you want to resign? (yes/no): ");
+    private void doResign() {
+        System.out.print("Do you want to rage quit? (yes/no): ");
         String confirm = scanner.nextLine().trim().toLowerCase();
         if (!confirm.equals("yes")) {
-            System.out.println("Resignation canceled.");
-            return false;
+            System.out.println("Resignation canceled");
+            return;
         }
 
         try {
             communicator.sendResign(currentGameID, repl.getAuthToken());
-
-            return true;
         } catch (Exception e) {
             System.out.println("Error resigning: " + e.getMessage());
-            return false;
         }
     }
 
 
 
     private void doMove() {
-        System.out.print("Enter move (e.g. e2 e4): ");
+        System.out.print("Enter move (e2 e4): ");
         String input = scanner.nextLine().trim().toLowerCase();
         String[] parts = input.split("\\s+");
 
-        if (parts.length != 2 || parts[0].length() != 2 || parts[1].length() != 2) {
-            System.out.println("Invalid input format. Use 'e2 e4'.");
+        if (parts.length != 2 || !isValidSquare(parts[0]) || !isValidSquare(parts[1])) {
+            System.out.println("Invalid input. Use positions like 'e2 e4'.");
             return;
         }
 
@@ -126,23 +119,49 @@ public class GameplayRepl {
             ChessPosition from = parsePosition(parts[0]);
             ChessPosition to = parsePosition(parts[1]);
 
-            ChessPiece.PieceType promotion = null;
             ChessPiece piece = currentGame.getBoard().getPiece(from);
-            if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN
-                    && (to.getRow() == 1 || to.getRow() == 8)) {
-                promotion = ChessPiece.PieceType.QUEEN;
+            if (piece == null) {
+                System.out.println("There is no piece at " + parts[0]);
+                return;
             }
 
-            ChessMove move = new ChessMove(from, to, promotion);
+            String currentUser = repl.getUsername();
+            ChessGame.TeamColor playerColor = null;
+            GameData gameData = gameService.getGameDAO().getGame(currentGameID);
 
-            GameData oldGameData = gameService.getGameDAO().getGame(currentGameID);
-            gameService.getGameDAO().updateGame(new GameData(
-                    oldGameData.gameID(),
-                    oldGameData.whiteUsername(),
-                    oldGameData.blackUsername(),
-                    oldGameData.gameName(),
-                    currentGame
-            ));
+            if (currentUser.equals(gameData.whiteUsername())) {
+                playerColor = ChessGame.TeamColor.WHITE;
+            } else if (currentUser.equals(gameData.blackUsername())) {
+                playerColor = ChessGame.TeamColor.BLACK;
+            }
+
+            if (playerColor == null) {
+                System.out.println("You are not a player in this game.");
+                return;
+            }
+
+            if (piece.getTeamColor() != playerColor) {
+                System.out.println("That is not your piece.");
+                return;
+            }
+
+            if (currentGame.getTeamTurn() != playerColor) {
+                System.out.println("It's not your turn.");
+                return;
+            }
+
+            ChessMove move = new ChessMove(from, to, null);
+            Collection<ChessMove> legalMoves = currentGame.validMoves(from);
+
+            if (!legalMoves.contains(move)) {
+                System.out.println("That is not a legal move");
+                return;
+            }
+
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                    (to.getRow() == 1 || to.getRow() == 8)) {
+                move = new ChessMove(from, to, ChessPiece.PieceType.QUEEN);
+            }
 
             communicator.sendMove(currentGameID, move, repl.getAuthToken());
 
@@ -151,13 +170,18 @@ public class GameplayRepl {
         }
     }
 
-
+    private boolean isValidSquare(String pos) {
+        return pos.length() == 2 &&
+                pos.charAt(0) >= 'a' && pos.charAt(0) <= 'h' &&
+                pos.charAt(1) >= '1' && pos.charAt(1) <= '8';
+    }
 
     private void doHighlight() {
         System.out.print("Enter position (e.g. e2): ");
         String input = scanner.nextLine().trim().toLowerCase();
-        if (input.length() != 2) {
-            System.out.println("Invalid position.");
+
+        if (!isValidSquare(input)) {
+            System.out.println("Invalid. Use a valid position like 'e2'.");
             return;
         }
 
@@ -166,7 +190,7 @@ public class GameplayRepl {
             ChessPiece piece = currentGame.getBoard().getPiece(pos);
 
             if (piece == null) {
-                System.out.println("No piece at that position.");
+                System.out.println("There is no piece there.");
                 return;
             }
 
