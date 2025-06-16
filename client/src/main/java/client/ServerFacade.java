@@ -1,3 +1,4 @@
+
 package client;
 
 import com.google.gson.Gson;
@@ -131,4 +132,3 @@ public class ServerFacade {
         }
     }
 }
-
