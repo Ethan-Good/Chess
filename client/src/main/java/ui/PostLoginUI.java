@@ -115,7 +115,7 @@ public class PostLoginUI {
         int gameID = cachedGames.get(number - 1).gameID();
         try {
             facade.joinGame(new JoinGameRequest(chessColor, gameID), controller.getAuthToken());
-            controller.gameplayUI.run(gameID, chessColor);
+//            controller.gameplayUI.run(gameID, chessColor);
         } catch (Exception e) {
             System.out.println("Failed to join game: Already Taken");
         }
@@ -141,7 +141,7 @@ public class PostLoginUI {
         int gameID = cachedGames.get(number - 1).gameID();
 
         try {
-            controller.enterGameplay(gameID, null);
+//            controller.enterGameplay(gameID, null);
         } catch (Exception e) {
             System.out.println("Failed to observe game: " + e.getMessage());
         }
