@@ -17,7 +17,6 @@ public class WebsocketCommunicator {
     public void sendMessage(String message) {
         if (clientSession != null && clientSession.isOpen()) {
             clientSession.getAsyncRemote().sendText(message);
-            System.out.println("Sent message to server: " + message);
         } else {
             System.err.println("No open WebSocket session to send message.");
         }
@@ -44,6 +43,13 @@ public class WebsocketCommunicator {
     public void sendResign(int gameID, String authToken) {
         JsonObject message = new JsonObject();
         message.addProperty("commandType", "RESIGN");
+        message.addProperty("gameID", gameID);
+        message.addProperty("authToken", authToken);
+        sendMessage(message.toString());
+    }
+    public void sendLeave(int gameID, String authToken) {
+        JsonObject message = new JsonObject();
+        message.addProperty("commandType", "LEAVE");
         message.addProperty("gameID", gameID);
         message.addProperty("authToken", authToken);
         sendMessage(message.toString());

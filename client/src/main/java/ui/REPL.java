@@ -1,7 +1,9 @@
 package ui;
 
+import chess.ChessGame;
 import client.*;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.SQL.SQLAuthDAO;
 import dataaccess.SQL.SQLGameDAO;
@@ -10,6 +12,11 @@ import service.GameService;
 import javax.websocket.*;
 import java.net.URI;
 import java.util.Scanner;
+import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
+import javax.websocket.ClientEndpointConfig;
+import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
 
 public class REPL {
     private final Scanner scanner = new Scanner(System.in);
@@ -56,37 +63,16 @@ public class REPL {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             URI uri = new URI("ws://localhost:8080/connect");
 
-            Endpoint endpoint = new Endpoint() {
-                @Override
-                public void onOpen(Session session, EndpointConfig config) {
-                    System.out.println("WebSocket connected");
-                    clientSession = session;
-                    communicator.setClientSession(session);
+            ClientEndpointConfig config = ClientEndpointConfig.Builder.create().build();
+            Endpoint endpointInstance = new WebsocketClientEndpoint(gameplayUI, communicator);
+            clientSession = container.connectToServer(endpointInstance, config, uri);
 
-                    session.addMessageHandler(String.class, message -> {
-                        System.out.println("[Server] " + message);
-                    });
-                }
-
-                @Override
-                public void onClose(Session session, CloseReason closeReason) {
-                    System.out.println("WebSocket disconnected: " + closeReason);
-                    clientSession = null;
-                    communicator.setClientSession(null);
-                }
-
-                @Override
-                public void onError(Session session, Throwable thr) {
-                    System.err.println("WebSocket error: " + thr.getMessage());
-                }
-            };
-
-            container.connectToServer(endpoint, uri);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Failed to connect WebSocket.");
         }
     }
+
 
     public void setAuth(String authToken, String username) {
         this.authToken = authToken;
@@ -104,5 +90,8 @@ public class REPL {
 
     public String getUsername() {
         return username;
+    }
+    public void enterGameplay(int gameID, ChessGame.TeamColor playerColor) throws DataAccessException {
+        gameplayUI.run(gameID, playerColor);
     }
 }

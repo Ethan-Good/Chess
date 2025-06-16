@@ -2,6 +2,7 @@ package server.handler;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import model.AuthData;
@@ -57,14 +58,22 @@ public class WebsocketHandler {
 
             switch (command.getCommandType()) {
                 case CONNECT -> {
-                    System.out.println("In connect");
                     sessions.addSession(gameID, session);
                     GameData game = gameService.getGameDAO().getGame(gameID);
+                    String color;
+                    if (username.equals(game.blackUsername())) {
+                        color = "black";
+                    } else if (username.equals(game.whiteUsername())) {
+                        color = "white";
+                    }
+                    else {
+                        color = "observer";
+                    }
                     session.getRemote().sendString(gson.toJson(ServerMessage.loadGame(game)));
+                    sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(username + " connected as " + color)));
                 }
 
                 case MAKE_MOVE -> {
-                    System.out.println("In make move");
                     ChessMove move = command.getMove();
                     GameData game = gameService.getGameDAO().getGame(gameID);
                     ChessGame chessGame = game.game();
@@ -74,7 +83,7 @@ public class WebsocketHandler {
                     gameService.getGameDAO().updateGame(updatedGame);
 
                     sessions.broadcast(gameID, gson.toJson(ServerMessage.loadGame(updatedGame)));
-                    sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(username + " moved " + move)));
+                    sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(username + " moved e2 e4")));
                 }
 
                 case RESIGN -> {
@@ -83,7 +92,7 @@ public class WebsocketHandler {
 
                 case LEAVE -> {
                     sessions.removeSession(gameID, session);
-                    session.getRemote().sendString(gson.toJson(ServerMessage.notification("You have left the game.")));
+                    sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(username + " has left the game")));
                 }
             }
         } catch (Exception e) {
@@ -94,5 +103,10 @@ public class WebsocketHandler {
                 ioException.printStackTrace();
             }
         }
+    }
+    private String formatPosition(ChessPosition pos) {
+        char colChar = (char) ('a' + pos.getColumn() - 1);  // column 1 → 'a'
+        int rowNum = pos.getRow();                         // row is already 1-based
+        return String.valueOf(colChar) + rowNum;
     }
 }

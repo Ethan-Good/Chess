@@ -1,6 +1,7 @@
 package ui;
 
 import client.ServerFacade;
+import model.GameData;
 import model.Request.*;
 import model.Result.*;
 import chess.*;
@@ -113,10 +114,6 @@ public class PostLoginUI {
         int gameID = cachedGames.get(number - 1).gameID();
         try {
             facade.joinGame(new JoinGameRequest(chessColor, gameID), controller.getAuthToken());
-            System.out.println("Joined game as " + color);
-            ChessGame game = new ChessGame();
-            ChessBoardPrinter printer = new ChessBoardPrinter();
-            printer.drawBoard(game, chessColor);
             controller.gameplayUI.run(gameID, chessColor);
         } catch (Exception e) {
             System.out.println("Failed to join game: Already Taken");
@@ -135,29 +132,20 @@ public class PostLoginUI {
             return;
         }
 
-        System.out.print("Color (white/black): ");
-        String color = scanner.nextLine().toLowerCase();
-        ChessGame.TeamColor chessColor = parseTeamColor(color);
-
-        if (chessColor == null) {
-            System.out.println("Invalid color.");
-            return;
-        }
-
         if (number < 1 || number > cachedGames.size()) {
             System.out.println("Invalid game number.");
             return;
         }
 
+        int gameID = cachedGames.get(number - 1).gameID();
+
         try {
-            System.out.println("Observing game. Drawing board from white's perspective");
-            ChessGame game = new ChessGame();
-            ChessBoardPrinter printer = new ChessBoardPrinter();
-            printer.drawBoard(game, chessColor);
+            controller.enterGameplay(gameID, null);
         } catch (Exception e) {
-            System.out.println("Failed to observe game");
+            System.out.println("Failed to observe game: " + e.getMessage());
         }
     }
+
 
     private ChessGame.TeamColor parseTeamColor(String input) {
         if (input.equalsIgnoreCase("white")) {

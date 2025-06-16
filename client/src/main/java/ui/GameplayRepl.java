@@ -43,9 +43,7 @@ public class GameplayRepl {
         }
 
         this.currentGame = gameData.game();
-        System.out.println("Joined game ID: " + gameID + " as " + color);
         printHelp();
-        printBoard();
 
         boolean running = true;
         while (running) {
@@ -56,6 +54,7 @@ public class GameplayRepl {
                 case "help" -> printHelp();
                 case "redraw" -> printBoard();
                 case "leave" -> {
+                    communicator.sendLeave(currentGameID, repl.getAuthToken());
                     System.out.println("Leaving game...");
                     running = false;
                 }
@@ -66,6 +65,9 @@ public class GameplayRepl {
                 case "move" -> doMove();
                 case "highlight" -> doHighlight();
                 default -> System.out.println("Unknown command. Type 'help' for list.");
+            }
+            if (running) {
+                System.out.println();
             }
         }
     }
@@ -99,27 +101,15 @@ public class GameplayRepl {
         }
 
         try {
-            currentGame.resign(playerColor);
-            GameData oldGameData = gameService.getGameDAO().getGame(currentGameID);
+            communicator.sendResign(currentGameID, repl.getAuthToken());
 
-            GameData updatedGameData = new GameData(
-                    oldGameData.gameID(),
-                    oldGameData.whiteUsername(),
-                    oldGameData.blackUsername(),
-                    oldGameData.gameName(),
-                    currentGame);
-
-            gameService.getGameDAO().updateGame(updatedGameData);
-
-            gameService.getGameDAO().deleteGame(currentGameID);
-
-            System.out.println("You resigned. Game over.");
-            return true;  // Indicate gameplay should exit
+            return true;
         } catch (Exception e) {
             System.out.println("Error resigning: " + e.getMessage());
             return false;
         }
     }
+
 
 
     private void doMove() {
@@ -140,12 +130,10 @@ public class GameplayRepl {
             ChessPiece piece = currentGame.getBoard().getPiece(from);
             if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN
                     && (to.getRow() == 1 || to.getRow() == 8)) {
-                promotion = ChessPiece.PieceType.QUEEN; // auto promote to queen
+                promotion = ChessPiece.PieceType.QUEEN;
             }
 
             ChessMove move = new ChessMove(from, to, promotion);
-
-//            currentGame.makeMove(move);
 
             GameData oldGameData = gameService.getGameDAO().getGame(currentGameID);
             gameService.getGameDAO().updateGame(new GameData(
@@ -157,9 +145,6 @@ public class GameplayRepl {
             ));
 
             communicator.sendMove(currentGameID, move, repl.getAuthToken());
-
-            System.out.println("Move made.");
-            printBoard();
 
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
