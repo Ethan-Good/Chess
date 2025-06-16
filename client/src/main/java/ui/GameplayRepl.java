@@ -34,6 +34,8 @@ public class GameplayRepl {
         this.currentGameID = gameID;
         this.playerColor = color;
 
+        communicator.sendConnect(gameID, repl.getAuthToken());
+
         GameData gameData = gameService.getGameDAO().getGame(gameID);
         if (gameData == null) {
             System.out.println("Error: Game not found");
@@ -80,9 +82,12 @@ public class GameplayRepl {
             """);
     }
 
-    private void printBoard() {
+    public void printBoard() {
         ChessBoardPrinter printer = new ChessBoardPrinter();
         printer.drawBoard(currentGame, playerColor);
+    }
+    public void setCurrentGame(ChessGame newGame) {
+        this.currentGame = newGame;
     }
 
     private boolean doResign() {

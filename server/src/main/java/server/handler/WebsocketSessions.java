@@ -37,7 +37,7 @@ public class WebsocketSessions {
                         session.getRemote().sendString(message);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace(); // Optional: log instead
+                    e.printStackTrace();
                 }
             }
         }

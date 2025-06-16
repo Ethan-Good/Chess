@@ -57,12 +57,14 @@ public class WebsocketHandler {
 
             switch (command.getCommandType()) {
                 case CONNECT -> {
+                    System.out.println("In connect");
                     sessions.addSession(gameID, session);
                     GameData game = gameService.getGameDAO().getGame(gameID);
                     session.getRemote().sendString(gson.toJson(ServerMessage.loadGame(game)));
                 }
 
                 case MAKE_MOVE -> {
+                    System.out.println("In make move");
                     ChessMove move = command.getMove();
                     GameData game = gameService.getGameDAO().getGame(gameID);
                     ChessGame chessGame = game.game();
