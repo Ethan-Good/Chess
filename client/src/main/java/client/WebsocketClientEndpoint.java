@@ -85,7 +85,7 @@ public class WebsocketClientEndpoint extends Endpoint {
                 System.out.println("[Notification] " + note);
             }
             case "ERROR" -> {
-                String error = json.get("error").getAsString();
+                String error = json.get("errorMessage").getAsString();
                 System.err.println("[Error] " + error);
             }
         }
