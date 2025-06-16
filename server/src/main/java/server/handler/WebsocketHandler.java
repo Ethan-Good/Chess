@@ -83,7 +83,18 @@ public class WebsocketHandler {
                     gameService.getGameDAO().updateGame(updatedGame);
 
                     sessions.broadcast(gameID, gson.toJson(ServerMessage.loadGame(updatedGame)));
-                    sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(username + " moved e2 e4")));
+                    String moveString = formatPosition(move.getStartPosition()) + " " + formatPosition(move.getEndPosition());
+                    sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(username + " moved " + moveString)));
+
+                    ChessGame.TeamColor opponentColor = chessGame.getTeamTurn();
+
+                    String opponentUsername = (opponentColor == ChessGame.TeamColor.WHITE) ? game.whiteUsername() : game.blackUsername();
+
+                    if (chessGame.isInCheckmate(opponentColor)) {
+                        sessions.broadcast(gameID, gson.toJson(ServerMessage.notification("Checkmate! " + opponentUsername + " loses.")));
+                    } else if (chessGame.isInCheck(opponentColor)) {
+                        sessions.broadcast(gameID, gson.toJson(ServerMessage.notification(opponentUsername + " is in check.")));
+                    }
                 }
 
                 case RESIGN -> {
@@ -105,8 +116,8 @@ public class WebsocketHandler {
         }
     }
     private String formatPosition(ChessPosition pos) {
-        char colChar = (char) ('a' + pos.getColumn() - 1);  // column 1 → 'a'
-        int rowNum = pos.getRow();                         // row is already 1-based
+        char colChar = (char) ('a' + pos.getColumn() - 1);
+        int rowNum = pos.getRow();
         return String.valueOf(colChar) + rowNum;
     }
 }
