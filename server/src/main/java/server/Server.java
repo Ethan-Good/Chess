@@ -32,8 +32,11 @@ public class Server {
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         UserService userService = new UserService(userDAO, authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
+        WebsocketSessions sessions = new WebsocketSessions();
 
-        Spark.webSocket("/ws", WebsocketHandler.class);
+
+        WebsocketHandler handler = new WebsocketHandler(gameService, authDAO, sessions);
+        Spark.webSocket("/connect", handler);
 
         Spark.delete("/db", new ClearHandler(clearService));
         Spark.post("/user", new RegisterHandler(userService));

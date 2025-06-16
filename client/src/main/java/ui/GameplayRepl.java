@@ -20,12 +20,14 @@ public class GameplayRepl {
     private int currentGameID = -1;
     private ChessGame.TeamColor playerColor;
     private ChessGame currentGame;
+    private final REPL repl;
 
-    public GameplayRepl(Scanner scanner, ServerFacade facade, GameService gameService, WebsocketCommunicator communicator) {
+    public GameplayRepl(Scanner scanner, ServerFacade facade, GameService gameService, WebsocketCommunicator communicator, REPL repl) {
         this.scanner = scanner;
         this.facade = facade;
         this.gameService = gameService;
         this.communicator = communicator;
+        this.repl = repl;
     }
 
     public void run(int gameID, ChessGame.TeamColor color) throws DataAccessException {
@@ -133,31 +135,32 @@ public class GameplayRepl {
             ChessPiece piece = currentGame.getBoard().getPiece(from);
             if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN
                     && (to.getRow() == 1 || to.getRow() == 8)) {
-                promotion = ChessPiece.PieceType.QUEEN; // auto promote to queen for now
+                promotion = ChessPiece.PieceType.QUEEN; // auto promote to queen
             }
 
             ChessMove move = new ChessMove(from, to, promotion);
 
-            currentGame.makeMove(move);
+//            currentGame.makeMove(move);
 
             GameData oldGameData = gameService.getGameDAO().getGame(currentGameID);
-
             gameService.getGameDAO().updateGame(new GameData(
                     oldGameData.gameID(),
                     oldGameData.whiteUsername(),
                     oldGameData.blackUsername(),
                     oldGameData.gameName(),
-                    currentGame));
+                    currentGame
+            ));
+
+            communicator.sendMove(currentGameID, move, repl.getAuthToken());
 
             System.out.println("Move made.");
             printBoard();
 
-        } catch (InvalidMoveException e) {
-            System.out.println("Invalid move: " + e.getMessage());
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
+
 
 
     private void doHighlight() {

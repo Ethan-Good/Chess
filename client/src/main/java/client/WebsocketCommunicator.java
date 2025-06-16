@@ -1,5 +1,9 @@
 package client;
 
+import chess.ChessMove;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import javax.websocket.*;
 import java.io.IOException;
 import java.util.Map;
@@ -63,9 +67,26 @@ public class WebsocketCommunicator {
         if (clientSession != null && clientSession.isOpen()) {
             try {
                 clientSession.getBasicRemote().sendText(message);
+                System.out.println("sent message");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void sendMessage(String message) {
+        this.clientSession.getAsyncRemote().sendText(message);
+    }
+
+    public void sendMove(int gameID, ChessMove move, String authToken) {
+        Gson gson = new Gson();
+
+        JsonObject message = new JsonObject();
+        message.addProperty("commandType", "MAKE_MOVE");
+        message.addProperty("gameID", gameID);
+        message.addProperty("authToken", authToken);
+        message.add("move", gson.toJsonTree(move));
+
+        sendMessage(message.toString());
     }
 }

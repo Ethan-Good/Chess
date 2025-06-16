@@ -33,7 +33,7 @@ public class REPL {
         this.communicator = new WebsocketCommunicator();
         this.preloginUI = new PreLoginUI(scanner, facade, this);
         this.postloginUI = new PostLoginUI(scanner, facade, this);
-        this.gameplayUI = new GameplayRepl(scanner, facade, gameService, communicator);
+        this.gameplayUI = new GameplayRepl(scanner, facade, gameService, communicator,this);
     }
 
     public void run() {
@@ -43,7 +43,6 @@ public class REPL {
             if (authToken == null) {
                 preloginUI.prompt();
             } else {
-                // Connect WebSocket once after login (only once)
                 if (clientSession == null || !clientSession.isOpen()) {
                     connectWebSocket();
                 }
@@ -55,9 +54,8 @@ public class REPL {
     private void connectWebSocket() {
         try {
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            URI uri = new URI("ws://localhost:8080/gameplay"); // Adjust URI to your server
+            URI uri = new URI("ws://localhost:8080/connect");
 
-            // Create your endpoint with a handler to set session in communicator
             Endpoint endpoint = new Endpoint() {
                 @Override
                 public void onOpen(Session session, EndpointConfig config) {
@@ -66,9 +64,7 @@ public class REPL {
                     communicator.setClientSession(session);
 
                     session.addMessageHandler(String.class, message -> {
-                        // Handle messages from server here (e.g., update UI)
                         System.out.println("[Server] " + message);
-                        // Optionally forward to GameplayRepl or other UI classes
                     });
                 }
 

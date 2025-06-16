@@ -22,6 +22,7 @@ public class WebsocketHandler {
     private final WebsocketSessions sessions;
 
     public WebsocketHandler(GameService gameService, AuthDAO authDAO, WebsocketSessions sessions) {
+
         this.gameService = gameService;
         this.authDAO = authDAO;
         this.sessions = sessions;
@@ -40,6 +41,7 @@ public class WebsocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
+        System.out.println("[Received from client]: " + message);
         try {
             UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
             String authToken = command.getAuthToken();
